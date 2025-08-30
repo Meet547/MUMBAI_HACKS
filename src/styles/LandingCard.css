@@ -1,0 +1,87 @@
+/* Card container */
+.landing-card {
+  width: min(1200px, calc(100% - 48px)); /* responsive max width, centered */
+  margin: 24px auto;
+  padding: 56px 64px;
+  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+  display: grid;
+  grid-template-columns: 1fr 340px; /* left text, right illustration */
+  gap: 48px;
+  align-items: center;
+}
+
+/* Left column */
+.landing-left { max-width: 640px; }
+
+.landing-logo { margin-bottom: 16px;}
+
+.landing-title {
+  margin: 0 0 12px 0;
+  font-size: 40px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.landing-subtitle {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  line-height: 1.6;
+  opacity: 0.92; /* nicer on dark/blue bg */
+}
+
+.landing-text {
+  margin: 8px 0 0 0;
+  font-size: 15px;
+  line-height: 1.7;
+  opacity: 0.9;
+}
+
+.landing-btn {
+  margin-top: 22px;
+  background: #ffcc00;
+  color: #111;
+  border: 0;
+  padding: 14px 28px;
+  font-weight: 800;
+  font-size: 16px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,.18);
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.landing-btn:hover {
+  background: #ffd74a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0,0,0,.22);
+}
+
+/* Right column */
+.landing-right {
+  display: flex;
+  justify-content: center;
+}
+
+/* A ready-to-use “document card” for the right side */
+.doc-card {
+  width: 260px;
+  height: 340px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 14px rgba(0,0,0,.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+/* Responsive tweaks */
+@media (max-width: 960px) {
+  .landing-card {
+    grid-template-columns: 1fr; /* stack */
+    padding: 40px 28px;
+    gap: 28px;
+  }
+  .landing-right { justify-content: flex-start; }
+  .landing-title { font-size: 32px; }
+}

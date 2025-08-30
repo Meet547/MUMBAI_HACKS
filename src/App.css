@@ -1,0 +1,5 @@
+.App {
+  background: #eb0000;  /* page background grey */
+  min-height: 100vh;
+  padding: 40px 0;       /* spacing from top and bottom */
+}
