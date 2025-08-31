@@ -6,6 +6,7 @@ import Hero from "./components/Hero";
 import LandingCard from "./components/LandingCard";
 import Footer from "./components/Footer";
 import Signup from "./components/Signup";
+import Dashboard from "./components/Dashboard";
 
 function HomePage() {
   return (
@@ -40,12 +41,22 @@ function SignupPage() {
   );
 }
 
+function DashboardPage() {
+  return (
+    <div className="dashboard-page-wrapper">
+      <Navbar />
+      <Dashboard />
+    </div>
+  );
+}
+
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
       </Routes>
     </Router>
   );

@@ -104,7 +104,17 @@ export default function Signup() {
   const handleGetStarted = () => {
     if (validateForm()) {
       console.log("Form submitted:", { selectedType, ...formData });
-      // Here you can add navigation or form submission logic
+      // Navigate to dashboard with user profile data
+      navigate("/dashboard", {
+        state: {
+          userProfile: {
+            name: formData.name,
+            email: formData.email,
+            industry: formData.industry,
+            userType: selectedType,
+          },
+        },
+      });
     }
   };
 
