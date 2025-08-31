@@ -32,7 +32,7 @@
 ### 1. Clone the repo
 
 ```bash
-git clone [https://github.com/AryanJoshi00/Draftzi.git]
+git clone https://github.com/AryanJoshi00/Draftzi.git
 cd Draftzi
 ```
 
