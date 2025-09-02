@@ -7,6 +7,10 @@ import LandingCard from "./components/LandingCard";
 import Footer from "./components/Footer";
 import Signup from "./components/Signup";
 import Dashboard from "./components/Dashboard";
+import ClientVault from "./components/ClientVault";
+import DocumentsOverview from "./components/DocumentsOverview";
+import PendingDocuments from "./components/PendingDocuments";
+import ComplianceCalendar from "./components/ComplianceCalendar";
 
 function HomePage() {
   return (
@@ -50,6 +54,42 @@ function DashboardPage() {
   );
 }
 
+function ClientVaultPage() {
+  return (
+    <div className="client-vault-page">
+      <Navbar />
+      <ClientVault />
+    </div>
+  );
+}
+
+function DocumentsOverviewPage() {
+  return (
+    <div className="documents-overview-page">
+      <Navbar />
+      <DocumentsOverview />
+    </div>
+  );
+}
+
+function PendingDocumentsPage() {
+  return (
+    <div className="pending-documents-page">
+      <Navbar />
+      <PendingDocuments />
+    </div>
+  );
+}
+
+function ComplianceCalendarPage() {
+  return (
+    <div className="compliance-calendar-page">
+      <Navbar />
+      <ComplianceCalendar />
+    </div>
+  );
+}
+
 function App() {
   return (
     <Router>
@@ -57,6 +97,13 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/client-vault" element={<ClientVaultPage />} />
+        <Route path="/documents-overview" element={<DocumentsOverviewPage />} />
+        <Route path="/pending-documents" element={<PendingDocumentsPage />} />
+        <Route
+          path="/compliance-calendar"
+          element={<ComplianceCalendarPage />}
+        />
       </Routes>
     </Router>
   );

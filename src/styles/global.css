@@ -1,5 +1,18 @@
 * {
   box-sizing: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection only for input fields and textareas */
+input,
+textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 html,
 body,
@@ -41,4 +54,52 @@ body {
   background: #4a5fd4; /* Ensure main also has blue background */
   width: 100%;
   overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+/* Standardized page container */
+.standard-page-container {
+  min-height: 100vh;
+  background: #4a5fd4;
+  padding: 20px;
+  margin-top: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.standard-content-container {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px 48px;
+  width: 95vw;
+  height: 80vh;
+  max-width: none;
+  text-align: center;
+  overflow: auto; /* Enable scrolling for other pages */
+  margin: 0;
+  position: relative;
+  top: calc(-50% + 35px);
+  left: 50%;
+  transform: translate(-50%, 0%);
+  scrollbar-width: thin; /* Show thin scrollbar for other pages */
+  -ms-overflow-style: auto;
+}
+
+.standard-content-container::-webkit-scrollbar {
+  width: 8px; /* Show scrollbar for other pages */
+}
+
+.standard-content-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.standard-content-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.standard-content-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }

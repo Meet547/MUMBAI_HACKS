@@ -6,8 +6,8 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  margin-top: 0px; /* Space for navbar */
-  overflow: hidden; /* Prevent page-level scrolling */
+  margin-top: 70px; /* Space for navbar - match signup page */
+  overflow: hidden; /* Prevent page-level scrolling - match signup page */
 }
 
 /* Dashboard Container - Matching signup-container exactly */
@@ -15,18 +15,23 @@
   background: #ffffff;
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  padding: 32px 40px; /* Reduced padding to fit content better */
+  padding: 40px 48px;
   width: 95vw;
-  height: 80vh; /* Reduced height to prevent overflow */
+  height: 80vh;
   max-width: none;
   text-align: center;
-  overflow: hidden; /* Prevent scrolling */
+  overflow: hidden; /* Prevent scrolling - match signup page */
   margin: 0;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: stretch;
-  position: relative;
+  position: absolute; /* Match signup page positioning */
+  top: calc(
+    50% + 35px
+  ); /* Center vertically and add half of navbar height - match signup page */
+  left: 50%;
+  transform: translate(-50%, -50%); /* Match signup page transform */
   scrollbar-width: none;
   -ms-overflow-style: none; /* IE and Edge */
 }
@@ -141,7 +146,6 @@
   transform: translateY(-2px);
 }
 
-
 .metric-icon {
   font-size: 1rem; /* Smaller icon */
   color: #6b7280;
@@ -197,7 +201,6 @@
   }
 }
 
-
 .dashboard-slogan {
   position: absolute;
   bottom: 50px;
@@ -251,19 +254,117 @@
   height: 100%;
 }
 
-/* Client Growth Container - Styled like dashboard container but smaller */
-.client-growth-container {
+/* Metric Detail Container - Styled like dashboard container but smaller */
+.metric-detail-container {
   background: #ffffff;
+  z-index: 2;
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem; /* Reduced padding */
+  padding: 1.5rem;
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem; /* Reduced gap to move summary up */
-  justify-content: flex-start; /* Changed from space-between to flex-start */
+  gap: 1rem; /* Increased gap to prevent overlap */
+  justify-content: flex-start;
   overflow: hidden;
+}
+
+/* Deadlines Preview - Specific styling for compliance deadlines */
+.deadlines-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem; /* Add margin to separate from summary */
+  flex: 1; /* Take available space */
+  min-height: 0; /* Allow shrinking */
+}
+
+.deadline-item {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 0.875rem; /* Reduced padding to fit better */
+  border-left: 4px solid #60a5fa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+.deadline-item.urgent {
+  border-left-color: #dc2626;
+  background: #fef2f2;
+}
+
+.deadline-info h4 {
+  font-size: 0.85rem; /* Smaller font to fit better */
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.3;
+}
+
+.deadline-info p {
+  font-size: 0.75rem; /* Smaller font to fit better */
+  color: #6b7280;
+  margin: 0;
+}
+
+.priority-indicator {
+  width: 10px; /* Smaller indicator */
+  height: 10px; /* Smaller indicator */
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.priority-indicator.high {
+  background: #dc2626;
+}
+
+.priority-indicator.medium {
+  background: #f59e0b;
+}
+
+.priority-indicator.low {
+  background: #10b981;
+}
+
+/* Empty State */
+.empty-state {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.empty-state-content {
+  text-align: center;
+  padding: 2rem;
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #64748b;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
+  font-size: 1rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.5;
 }
 
 .section-title {
@@ -333,23 +434,24 @@
   animation-delay: 1s;
 }
 
-/* Summary Section - Moved up to avoid overlap */
+/* Summary Section - Better spacing */
 .summary-section {
   background: #f8fafc;
-  border-radius: 10px; /* Smaller radius */
-  padding: 0.875rem; /* Reduced padding */
+  border-radius: 10px;
+  padding: 0.75rem; /* Reduced padding */
   border-left: 4px solid #60a5fa;
   text-align: left;
   margin: 0 auto;
   width: 90%;
-  margin-bottom: 0.5rem; /* Added margin bottom to separate from button */
+  margin-bottom: 0.75rem; /* Reduced margin */
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .summary-section h3 {
-  font-size: 1rem; /* Smaller font */
+  font-size: 0.9rem; /* Smaller font */
   font-weight: 600;
-    color: #1a1a1a;
-    margin: 0 0 0.5rem 0; /* Reduced margin */
+  color: #1a1a1a;
+  margin: 0 0 0.375rem 0; /* Reduced margin */
   text-align: center;
 }
 
@@ -359,15 +461,15 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.375rem; /* Reduced gap */
+  gap: 0.25rem; /* Reduced gap */
 }
 
 .summary-list li {
   color: #4b5563;
-  font-size: 0.85rem; /* Smaller font */
-  line-height: 1.3; /* Reduced line height */
+  font-size: 0.8rem; /* Smaller font */
+  line-height: 1.2; /* Reduced line height */
   position: relative;
-  padding-left: 1rem; /* Reduced padding */
+  padding-left: 0.875rem; /* Reduced padding */
 }
 
 .summary-list li::before {
@@ -379,26 +481,38 @@
   top: 0;
 }
 
-/* Open Vault Button - Centered */
-.open-vault-btn {
+/* CTA Button - Better positioning */
+.cta-btn {
   background: #60a5fa;
   color: #ffffff;
   border: none;
-  padding: 0.75rem 1.5rem; /* Reduced padding */
-  font-size: 0.9rem; /* Smaller font */
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  border-radius: 10px; /* Smaller radius */
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
   margin: 0 auto;
-  display: block;
-  margin-top: 10px; /* Push button to bottom */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto; /* Push button to bottom */
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
-.open-vault-btn:hover {
+.cta-btn:hover {
   background: #3b82f6;
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(96, 165, 250, 0.3);
+}
+
+.cta-btn svg {
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.cta-btn:hover svg {
+  transform: translateX(2px);
 }
 
 /* Chart Animations */
@@ -635,9 +749,14 @@
     height: auto;
   }
 
-  .client-growth-container {
+  .metric-detail-container {
     height: auto;
     gap: 0.75rem;
+  }
+
+  .empty-state {
+    height: auto;
+    min-height: 200px;
   }
 
   .chart-container {
@@ -690,7 +809,7 @@
     width: 95%;
   }
 
-  .open-vault-btn {
+  .cta-btn {
     padding: 0.625rem 1.25rem;
     font-size: 0.85rem;
   }
