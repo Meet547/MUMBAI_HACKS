@@ -10,70 +10,475 @@ import {
   FaFileAlt,
   FaSearch,
   FaPlus,
+  FaEdit,
+  FaThumbtack,
+  FaTrash,
 } from "react-icons/fa";
 import "../styles/ClientVault.css";
+import { createPortal } from "react-dom";
+
+
+// Enhanced confetti effect
+const createConfetti = () => {
+  const colors = ["#60a5fa", "#34d399", "#fbbf24", "#f472b6", "#a78bfa", "#ff6b6b", "#4ecdc4"];
+  const shapes = ["circle", "square", "triangle"];
+  const confettiCount = 80;
+
+  for (let i = 0; i < confettiCount; i++) {
+    const confetti = document.createElement("div");
+    const shape = shapes[Math.floor(Math.random() * shapes.length)];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const size = Math.random() * 8 + 4; // 4-12px
+    
+    confetti.style.position = "fixed";
+    confetti.style.width = size + "px";
+    confetti.style.height = size + "px";
+    confetti.style.backgroundColor = color;
+    confetti.style.left = Math.random() * 100 + "vw";
+    confetti.style.top = "-20px";
+    confetti.style.zIndex = "9999";
+    confetti.style.pointerEvents = "none";
+    confetti.style.opacity = "0.9";
+    
+    // Different shapes
+    if (shape === "circle") {
+      confetti.style.borderRadius = "50%";
+    } else if (shape === "triangle") {
+      confetti.style.width = "0";
+      confetti.style.height = "0";
+      confetti.style.backgroundColor = "transparent";
+      confetti.style.borderLeft = size/2 + "px solid transparent";
+      confetti.style.borderRight = size/2 + "px solid transparent";
+      confetti.style.borderBottom = size + "px solid " + color;
+    }
+    // square is default (no additional styling needed)
+
+    document.body.appendChild(confetti);
+
+    const horizontalMovement = (Math.random() - 0.5) * 200; // -100px to 100px
+    const rotationAmount = Math.random() * 1080 + 360; // 360-1440 degrees
+
+    const animation = confetti.animate(
+      [
+        { 
+          transform: "translateY(0px) translateX(0px) rotate(0deg)", 
+          opacity: 0.9,
+          filter: "blur(0px)"
+        },
+        {
+          transform: `translateY(${window.innerHeight + 100}px) translateX(${horizontalMovement}px) rotate(${rotationAmount}deg)`,
+          opacity: 0,
+          filter: "blur(1px)"
+        },
+      ],
+      {
+        duration: Math.random() * 2000 + 2500, // 2.5-4.5 seconds
+        easing: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      }
+    );
+
+    animation.onfinish = () => {
+      confetti.remove();
+    };
+  }
+};
+
+// Format date to dd-mm-yyyy
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+};
 
 export default function ClientVault() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchFilter, setSearchFilter] = useState("all");
+  const [viewMode, setViewMode] = useState("grid"); // 'grid' | 'list'
 
-  // Mock client data
-  const clients = [
+  // Local state for clients to enable add/edit
+  const [clients, setClients] = useState([
     {
       id: 1,
       name: "Aryan & Co.",
-      type: "Law Firm",
+      firmName: "Aryan & Co.",
       email: "contact@aryanco.com",
       phone: "+1 (555) 123-4567",
       joinDate: "2023-01-15",
       documents: 45,
-      status: "Active",
+      firmAddress: "12, Business Park, Mumbai",
+      gstNumber: "27AAAAA0000A1Z5",
+      notes: "Priority corporate client.",
+      pinned: false,
     },
     {
       id: 2,
       name: "Kevin Law Associates",
-      type: "Legal Practice",
+      firmName: "Kevin Law Associates",
       email: "info@kevinlaw.com",
       phone: "+1 (555) 987-6543",
       joinDate: "2023-03-22",
       documents: 32,
-      status: "Active",
+      firmAddress: "21, Central Ave, Bengaluru",
+      gstNumber: "29BBBBB1111B2Z6",
+      notes: "Focus: IP and trademarks.",
+      pinned: false,
     },
     {
       id: 3,
       name: "Smith & Partners",
-      type: "Corporate Law",
+      firmName: "Smith & Partners",
       email: "hello@smithpartners.com",
       phone: "+1 (555) 456-7890",
       joinDate: "2023-05-10",
       documents: 28,
-      status: "Active",
+      firmAddress: "45, Corporate Park, Delhi",
+      gstNumber: "07CCCCC2222C3Z7",
+      notes: "International contracts.",
+      pinned: false,
     },
     {
       id: 4,
       name: "Johnson Legal Group",
-      type: "Family Law",
+      firmName: "Johnson Legal Group",
       email: "contact@johnsonlegal.com",
       phone: "+1 (555) 321-0987",
       joinDate: "2023-07-18",
       documents: 19,
-      status: "Inactive",
+      firmAddress: "88, Lake View, Pune",
+      gstNumber: "27DDDDD3333D4Z8",
+      notes: "Family law desk.",
+      pinned: false,
     },
-  ];
+    // Additional seeded clients (10 more)
+    {
+      id: 5,
+      name: "BrightFuture LLP",
+      firmName: "BrightFuture LLP",
+      email: "contact@brightfuture.com",
+      phone: "+1 (555) 210-3344",
+      joinDate: "2023-08-04",
+      documents: 12,
+      firmAddress: "77, Tech Park, Hyderabad",
+      gstNumber: "36EEEEE4444E5Z9",
+      notes: "Startup compliance.",
+      pinned: false,
+    },
+    {
+      id: 6,
+      name: "Urban Realty",
+      firmName: "Urban Realty",
+      email: "hello@urbanrealty.com",
+      phone: "+1 (555) 654-2211",
+      joinDate: "2023-09-16",
+      documents: 25,
+      firmAddress: "9, Market Street, Chennai",
+      gstNumber: "33FFFFF5555F6Z0",
+      notes: "Property contracts",
+      pinned: false,
+    },
+    {
+      id: 7,
+      name: "GreenLeaf Ventures",
+      firmName: "GreenLeaf Ventures",
+      email: "info@greenleaf.com",
+      phone: "+1 (555) 740-9988",
+      joinDate: "2023-10-01",
+      documents: 7,
+      firmAddress: "16, Eco Towers, Jaipur",
+      gstNumber: "08GGGGG6666G7Z1",
+      notes: "Sustainability M&A",
+      pinned: false,
+    },
+    {
+      id: 8,
+      name: "PrimeTextiles",
+      firmName: "PrimeTextiles",
+      email: "legal@primetextiles.com",
+      phone: "+1 (555) 993-2210",
+      joinDate: "2023-10-21",
+      documents: 18,
+      firmAddress: "2, Industrial Area, Surat",
+      gstNumber: "24HHHHH7777H8Z2",
+      notes: "Labour compliance",
+      pinned: false,
+    },
+    {
+      id: 9,
+      name: "BlueOcean Shipping",
+      firmName: "BlueOcean Shipping",
+      email: "contact@blueocean.com",
+      phone: "+1 (555) 112-3344",
+      joinDate: "2023-11-02",
+      documents: 15,
+      firmAddress: "Dockyard Road, Kochi",
+      gstNumber: "32IIIII8888I9Z3",
+      notes: "Admiralty matters",
+      pinned: false,
+    },
+    {
+      id: 10,
+      name: "Zen Health Pvt Ltd",
+      firmName: "Zen Health Pvt Ltd",
+      email: "legal@zenhealth.com",
+      phone: "+1 (555) 554-8899",
+      joinDate: "2023-11-20",
+      documents: 22,
+      firmAddress: "Wellness Park, Ahmedabad",
+      gstNumber: "24JJJJJ9999J1Z4",
+      notes: "Healthcare compliance",
+      pinned: false,
+    },
+    {
+      id: 11,
+      name: "Nimbus Tech",
+      firmName: "Nimbus Tech",
+      email: "counsel@nimbustech.io",
+      phone: "+1 (555) 775-6600",
+      joinDate: "2023-12-05",
+      documents: 30,
+      firmAddress: "Cloud Hub, Gurugram",
+      gstNumber: "06KKKKK0000K2Z5",
+      notes: "SaaS contracts",
+      pinned: false,
+    },
+    {
+      id: 12,
+      name: "Aurora Foods",
+      firmName: "Aurora Foods",
+      email: "legal@aurorafoods.co",
+      phone: "+1 (555) 442-8822",
+      joinDate: "2023-12-18",
+      documents: 11,
+      firmAddress: "Food Park, Indore",
+      gstNumber: "23LLLLL1111L3Z6",
+      notes: "FSSAI & labeling",
+      pinned: false,
+    },
+    {
+      id: 13,
+      name: "Velocity Motors",
+      firmName: "Velocity Motors",
+      email: "law@velocitymotors.com",
+      phone: "+1 (555) 909-1010",
+      joinDate: "2024-01-02",
+      documents: 14,
+      firmAddress: "Auto Zone, Nashik",
+      gstNumber: "27MMMMM2222M4Z7",
+      notes: "Vendor agreements",
+      pinned: false,
+    },
+    {
+      id: 14,
+      name: "Crest Finance",
+      firmName: "Crest Finance",
+      email: "gc@crestfinance.in",
+      phone: "+1 (555) 300-7700",
+      joinDate: "2024-01-09",
+      documents: 26,
+      firmAddress: "IFSC Complex, GIFT City",
+      gstNumber: "24NNNNN3333N5Z8",
+      notes: "NBFC compliance",
+      pinned: false,
+    },
+  ]);
 
-  const filteredClients = clients.filter(
-    (client) =>
-      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.type.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Modal state
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null);
+
+  const [newClient, setNewClient] = useState({
+    id: "",
+    name: "",
+    phone: "",
+    email: "",
+    firmName: "",
+    firmAddress: "",
+    gstNumber: "",
+    documents: 0,
+    joinDate: new Date().toISOString().slice(0, 10),
+    notes: "",
+  });
+
+  const filteredClients = clients
+    .filter((client) => {
+      if (!searchTerm) return true;
+
+      const searchLower = searchTerm.toLowerCase();
+
+      if (searchFilter === "all") {
+        const haystack =
+          `${client.name} ${client.firmName} ${client.email} ${client.phone} ${client.id} ${client.gstNumber}`.toLowerCase();
+        return haystack.includes(searchLower);
+      }
+      if (searchFilter === "name")
+        return client.name.toLowerCase().includes(searchLower);
+      if (searchFilter === "id")
+        return client.id.toString().includes(searchLower);
+      if (searchFilter === "phone")
+        return client.phone.toLowerCase().includes(searchLower);
+      if (searchFilter === "email")
+        return client.email.toLowerCase().includes(searchLower);
+      if (searchFilter === "firm")
+        return client.firmName?.toLowerCase().includes(searchLower) || false;
+      if (searchFilter === "gst")
+        return client.gstNumber?.toLowerCase().includes(searchLower) || false;
+
+      return true;
+    })
+    .sort((a, b) => {
+      // Pinned clients first, then by pinnedAt (latest pin first), then by ID (latest first)
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      if (a.pinned && b.pinned) {
+        return new Date(b.pinnedAt || 0) - new Date(a.pinnedAt || 0);
+      }
+      return b.id - a.id; // Latest first
+    });
 
   const handleBackToDashboard = () => {
     navigate("/dashboard");
   };
 
+  const handleOpenAdd = () => setIsAddOpen(true);
+  const handleCloseAdd = () => {
+    setIsAddOpen(false);
+    // Reset form when closing
+    setNewClient({
+      id: "",
+      name: "",
+      phone: "",
+      email: "",
+      firmName: "",
+      firmAddress: "",
+      gstNumber: "",
+      documents: 0,
+      joinDate: new Date().toISOString().slice(0, 10),
+      notes: "",
+    });
+  };
+
+  const handleOpenView = (client) => {
+    setSelectedClient(client);
+    setIsViewOpen(true);
+  };
+
+  const handleCloseView = () => {
+    setIsViewOpen(false);
+    setSelectedClient(null);
+  };
+
+  const handleOpenEdit = (client) => {
+    setSelectedClient({ ...client }); // Create a copy to avoid direct mutation
+    setIsEditOpen(true);
+  };
+
+  const handleCloseEdit = () => {
+    setIsEditOpen(false);
+    setSelectedClient(null);
+  };
+
+  const handleDraftNewDoc = (client) => {
+    navigate("/drafting", { state: { client } });
+  };
+
+  const handleTotalDocumentsClick = () => {
+    navigate("/documents-overview");
+  };
+
+  const handlePinClient = (clientId) => {
+    setClients((prev) =>
+      prev.map((client) =>
+        client.id === clientId
+          ? {
+              ...client,
+              pinned: !client.pinned,
+              pinnedAt: client.pinned ? null : new Date().toISOString(),
+            }
+          : client
+      )
+    );
+  };
+
+  const handleAddClient = (e) => {
+    e.preventDefault();
+    
+    // Validate required fields
+    if (!newClient.id || !newClient.name || !newClient.phone || !newClient.email) {
+      return;
+    }
+
+    // Check if ID already exists
+    if (clients.some(client => client.id.toString() === newClient.id.toString())) {
+      alert("Client ID already exists. Please use a different ID.");
+      return;
+    }
+
+    // Create new client with proper ID conversion
+    const clientToAdd = {
+      ...newClient,
+      id: parseInt(newClient.id, 10),
+      documents: 0,
+      pinned: false,
+    };
+
+    setClients((prev) => [...prev, clientToAdd]);
+    
+    // Reset form
+    setNewClient({
+      id: "",
+      name: "",
+      phone: "",
+      email: "",
+      firmName: "",
+      firmAddress: "",
+      gstNumber: "",
+      documents: 0,
+      joinDate: new Date().toISOString().slice(0, 10),
+      notes: "",
+    });
+    
+    setIsAddOpen(false);
+
+    // Trigger confetti effect
+    createConfetti();
+  };
+
+  const handleEditClient = (e) => {
+    e.preventDefault();
+    if (!selectedClient) return;
+    
+    setClients((prev) =>
+      prev.map((c) =>
+        c.id === selectedClient.id
+          ? {
+              ...selectedClient,
+              documents: Number(selectedClient.documents) || 0,
+            }
+          : c
+      )
+    );
+    setIsEditOpen(false);
+    setSelectedClient(null);
+  };
+
+  const handleDeleteClient = () => {
+    if (!selectedClient) return;
+    
+    if (window.confirm(`Are you sure you want to delete ${selectedClient.name}? This action cannot be undone.`)) {
+      setClients((prev) => prev.filter((c) => c.id !== selectedClient.id));
+      setIsEditOpen(false);
+      setSelectedClient(null);
+    }
+  };
+
   return (
     <div className="standard-page-container">
-      <div className="standard-content-container">
+      <div className="standard-content-container centered">
         {/* Header */}
         <div className="vault-header">
           <button className="back-btn" onClick={handleBackToDashboard}>
@@ -95,8 +500,22 @@ export default function ClientVault() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
             />
+            <select
+              value={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+              className="search-filter"
+            >
+              <option value="all">All Clients</option>
+              <option value="name">Name</option>
+              <option value="id">ID</option>
+              <option value="phone">Phone</option>
+              <option value="email">Email</option>
+              <option value="firm">Firm Name</option>
+              <option value="gst">GST Number</option>
+            </select>
           </div>
-          <button className="add-client-btn">
+
+          <button className="add-client-btn" onClick={handleOpenAdd}>
             <FaPlus />
             Add New Client
           </button>
@@ -113,25 +532,20 @@ export default function ClientVault() {
               <p className="stat-number">{clients.length}</p>
             </div>
           </div>
-          <div className="stat-card">
+          <div
+            className="stat-card clickable"
+            onClick={handleTotalDocumentsClick}
+          >
             <div className="stat-icon">
               <FaFileAlt />
             </div>
             <div className="stat-content">
               <h3>Total Documents</h3>
               <p className="stat-number">
-                {clients.reduce((sum, client) => sum + client.documents, 0)}
-              </p>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon">
-              <FaBuilding />
-            </div>
-            <div className="stat-content">
-              <h3>Active Clients</h3>
-              <p className="stat-number">
-                {clients.filter((client) => client.status === "Active").length}
+                {clients.reduce(
+                  (sum, client) => sum + (Number(client.documents) || 0),
+                  0
+                )}
               </p>
             </div>
           </div>
@@ -139,55 +553,543 @@ export default function ClientVault() {
 
         {/* Client List */}
         <div className="client-list">
-          <h2 className="list-title">All Clients</h2>
-          <div className="clients-grid">
-            {filteredClients.map((client) => (
-              <div key={client.id} className="client-card">
-                <div className="client-header">
-                  <div className="client-avatar">
-                    <FaBuilding />
+          <div className="list-header">
+            <h2 className="list-title">All Clients</h2>
+            <div className="view-toggle" role="group" aria-label="View toggle">
+              <input
+                id="toggle-list"
+                type="radio"
+                name="view-mode"
+                checked={viewMode === "list"}
+                onChange={() => setViewMode("list")}
+              />
+              <label htmlFor="toggle-list">List</label>
+              <input
+                id="toggle-grid"
+                type="radio"
+                name="view-mode"
+                checked={viewMode === "grid"}
+                onChange={() => setViewMode("grid")}
+              />
+              <label htmlFor="toggle-grid">Tile</label>
+              <span className={`slider ${viewMode}`}></span>
+            </div>
+          </div>
+
+          {viewMode === "grid" ? (
+            <div className="clients-grid">
+              {filteredClients.map((client) => (
+                <div
+                  key={client.id}
+                  className={`client-card ${client.pinned ? "pinned" : ""}`}
+                >
+                  <button
+                    className="pin-btn"
+                    onClick={() => handlePinClient(client.id)}
+                    title={client.pinned ? "Unpin client" : "Pin client"}
+                  >
+                    <FaThumbtack className={client.pinned ? "pinned" : ""} />
+                  </button>
+                  <div className="client-header">
+                    <div className="client-avatar">
+                      <FaBuilding />
+                    </div>
+                    <div className="client-info">
+                      <h3 className="client-name">{client.name}</h3>
+                      <p className="client-type">
+                        {client.firmName || "Individual"}
+                      </p>
+                    </div>
                   </div>
-                  <div className="client-info">
-                    <h3 className="client-name">{client.name}</h3>
-                    <p className="client-type">{client.type}</p>
-                    <span
-                      className={`status-badge ${client.status.toLowerCase()}`}
+
+                  <div className="client-details">
+                    <div className="detail-item">
+                      <FaEnvelope className="detail-icon" />
+                      <span>{client.email}</span>
+                    </div>
+                    <div className="detail-item">
+                      <FaPhone className="detail-icon" />
+                      <span>{client.phone}</span>
+                    </div>
+                    <div className="detail-item">
+                      <FaCalendarAlt className="detail-icon" />
+                      <span>Joined: {formatDate(client.joinDate)}</span>
+                    </div>
+                    <div className="detail-item">
+                      <FaFileAlt className="detail-icon" />
+                      <span>{client.documents} documents</span>
+                    </div>
+                  </div>
+
+                  <div className="client-actions">
+                    <button
+                      className="action-btn primary"
+                      onClick={() => handleOpenView(client)}
                     >
-                      {client.status}
-                    </span>
+                      View Details
+                    </button>
+                    <button
+                      className="action-btn secondary"
+                      onClick={() => handleDraftNewDoc(client)}
+                    >
+                      Draft New Document
+                    </button>
                   </div>
                 </div>
-
-                <div className="client-details">
-                  <div className="detail-item">
-                    <FaEnvelope className="detail-icon" />
-                    <span>{client.email}</span>
-                  </div>
-                  <div className="detail-item">
-                    <FaPhone className="detail-icon" />
-                    <span>{client.phone}</span>
-                  </div>
-                  <div className="detail-item">
-                    <FaCalendarAlt className="detail-icon" />
-                    <span>
-                      Joined: {new Date(client.joinDate).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="detail-item">
-                    <FaFileAlt className="detail-icon" />
-                    <span>{client.documents} documents</span>
-                  </div>
-                </div>
-
-                <div className="client-actions">
-                  <button className="action-btn primary">View Details</button>
-                  <button className="action-btn secondary">Edit Client</button>
-                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="clients-list">
+              {/* Header row */}
+              <div className="list-header-row">
+                <div className="header-cell">Pin</div>
+                <div className="header-cell">Client Name</div>
+                <div className="header-cell">ID</div>
+                <div className="header-cell">Phone</div>
+                <div className="header-cell">Email</div>
+                <div className="header-cell">Firm Name</div>
+                <div className="header-cell">Address</div>
+                <div className="header-cell">GST</div>
+                <div className="header-cell center">Docs</div>
+                <div className="header-cell">Joined</div>
               </div>
-            ))}
+              {filteredClients.map((client) => (
+                <div
+                  key={client.id}
+                  className={`client-row ${client.pinned ? "pinned" : ""}`}
+                >
+                  <button
+                    className="pin-btn list-pin"
+                    onClick={() => handlePinClient(client.id)}
+                    title={client.pinned ? "Unpin client" : "Pin client"}
+                  >
+                    <FaThumbtack className={client.pinned ? "pinned" : ""} />
+                  </button>
+                  <div className="row-main">
+                    <div className="row-cell wide name">{client.name}</div>
+                    <div className="row-cell id">{client.id}</div>
+                    <div className="row-cell">{client.phone}</div>
+                    <div className="row-cell">{client.email}</div>
+                    <div className="row-cell">
+                      {client.firmName || "Individual"}
+                    </div>
+                    <div className="row-cell">{client.firmAddress}</div>
+                    <div className="row-cell">{client.gstNumber || "-"}</div>
+                    <div className="row-cell center">{client.documents}</div>
+                    <div className="row-cell">
+                      {formatDate(client.joinDate)}
+                    </div>
+                  </div>
+                  <div className="row-actions">
+                    <button
+                      className="action-btn primary"
+                      onClick={() => handleOpenView(client)}
+                    >
+                      View
+                    </button>
+                    <button
+                      className="action-btn secondary plus-btn"
+                      onClick={() => handleDraftNewDoc(client)}
+                    >
+                      <FaPlus />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Add Client Modal */}
+{isAddOpen &&
+  createPortal(
+    <div className="modal-overlay" onClick={handleCloseAdd}>
+      <div
+        className="modal wide-modal centered-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-header">
+          <h3>Add New Client</h3>
+          <button className="close" onClick={handleCloseAdd}>
+            ×
+          </button>
+        </div>
+        <form className="modal-body" onSubmit={handleAddClient}>
+          <div className="form-list">
+            <label>
+              <span className="form-label">Client Name</span>
+              <input
+                type="text"
+                value={newClient.name}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, name: e.target.value })
+                }
+                required
+              />
+            </label>
+            <label>
+              <span className="form-label">Client ID</span>
+              <input
+                type="number"
+                min="1"
+                value={newClient.id}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, id: e.target.value })
+                }
+                placeholder="15"
+                required
+              />
+            </label>
+            <label>
+              <span className="form-label">Firm Name (optional)</span>
+              <input
+                type="text"
+                value={newClient.firmName}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, firmName: e.target.value })
+                }
+              />
+            </label>
+            <label>
+              <span className="form-label">Firm Address</span>
+              <input
+                type="text"
+                value={newClient.firmAddress}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, firmAddress: e.target.value })
+                }
+              />
+            </label>
+            <label>
+              <span className="form-label">Contact Number</span>
+              <input
+                type="text"
+                value={newClient.phone}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, phone: e.target.value })
+                }
+                required
+              />
+            </label>
+            <label>
+              <span className="form-label">Email</span>
+              <input
+                type="email"
+                value={newClient.email}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, email: e.target.value })
+                }
+                required
+              />
+            </label>
+            <label>
+              <span className="form-label">GST Number (optional)</span>
+              <input
+                type="text"
+                value={newClient.gstNumber}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, gstNumber: e.target.value })
+                }
+              />
+            </label>
+            <label>
+              <span className="form-label">Joined Date</span>
+              <input
+                type="date"
+                value={newClient.joinDate}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, joinDate: e.target.value })
+                }
+              />
+            </label>
+            <label className="full">
+              <span className="form-label">Additional Notes (optional)</span>
+              <textarea
+                rows="3"
+                value={newClient.notes}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, notes: e.target.value })
+                }
+              />
+            </label>
+          </div>
+          <div className="modal-footer">
+  <button
+    type="button"
+    className="action-btn secondary"
+    onClick={handleCloseAdd}
+  >
+    Cancel
+  </button>
+  <button type="submit" className="action-btn primary">
+    Add Client
+  </button>
+</div>
+</form>
+</div>
+</div>,
+document.body
+)}
+
+
+{/* View Client Modal */}
+{isViewOpen && selectedClient &&
+  createPortal(
+    <div className="modal-overlay" onClick={handleCloseView}>
+      <div
+        className="modal wide-modal centered-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-header">
+          <h3>Client Details</h3>
+          <button className="close" onClick={handleCloseView}>
+            ×
+          </button>
+        </div>
+        <div className="modal-body read">
+          <div className="detail-list">
+            <div className="detail-row highlight">
+              <span className="detail-label">Documents Created:</span>
+              <span className="detail-value large">
+                {selectedClient.documents}
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Client Name:</span>
+              <span className="detail-value">{selectedClient.name}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Client ID:</span>
+              <span className="detail-value">{selectedClient.id}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Firm Name:</span>
+              <span className="detail-value">
+                {selectedClient.firmName || "-"}
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Firm Address:</span>
+              <span className="detail-value">
+                {selectedClient.firmAddress || "-"}
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Contact Number:</span>
+              <span className="detail-value">{selectedClient.phone}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Email:</span>
+              <span className="detail-value">{selectedClient.email}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">GST Number:</span>
+              <span className="detail-value">
+                {selectedClient.gstNumber || "-"}
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Joined Date:</span>
+              <span className="detail-value">
+                {formatDate(selectedClient.joinDate)}
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Additional Notes:</span>
+              <span className="detail-value">
+                {selectedClient.notes || "-"}
+              </span>
+            </div>
           </div>
         </div>
+        <div className="modal-footer">
+          <button
+            className="action-btn primary"
+            onClick={() => handleOpenEdit(selectedClient)}
+          >
+            Edit Details
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    </div>,
+    document.body
+  )}
+
+{/* Edit Client Modal */}
+{isEditOpen && selectedClient &&
+  createPortal(
+    <div className="modal-overlay" onClick={handleCloseEdit}>
+      <div
+        className="modal wide-modal centered-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-header">
+          <h3>Edit Client</h3>
+          <button className="close" onClick={handleCloseEdit}>
+            ×
+          </button>
+        </div>
+        <form className="modal-body" onSubmit={handleEditClient}>
+          <div className="form-list">
+            <label className="highlight">
+              <span className="form-label">Documents Created</span>
+              <input
+                type="number"
+                min="0"
+                value={selectedClient.documents}
+                readOnly
+                className="readonly-input"
+              />
+            </label>
+            <label>
+              <span className="form-label">Client Name</span>
+              <input
+                type="text"
+                value={selectedClient.name}
+                onChange={(e) =>
+                  setSelectedClient({
+                    ...selectedClient,
+                    name: e.target.value,
+                  })
+                }
+                required
+              />
+            </label>
+            <label>
+              <span className="form-label">Client ID</span>
+              <input
+                type="number"
+                min="1"
+                value={selectedClient.id}
+                onChange={(e) =>
+                  setSelectedClient({
+                    ...selectedClient,
+                    id: parseInt(e.target.value, 10) || "",
+                  })
+                }
+                required
+              />
+            </label>
+            <label>
+              <span className="form-label">Firm Name (optional)</span>
+              <input
+                type="text"
+                value={selectedClient.firmName || ""}
+                onChange={(e) =>
+                  setSelectedClient({
+                    ...selectedClient,
+                    firmName: e.target.value,
+                  })
+                }
+              />
+            </label>
+            <label>
+              <span className="form-label">Firm Address</span>
+              <input
+                type="text"
+                value={selectedClient.firmAddress || ""}
+                onChange={(e) =>
+                  setSelectedClient({
+                    ...selectedClient,
+                    firmAddress: e.target.value,
+                  })
+                }
+              />
+            </label>
+            <label>
+              <span className="form-label">Contact Number</span>
+              <input
+                type="text"
+                value={selectedClient.phone}
+                onChange={(e) =>
+                  setSelectedClient({
+                    ...selectedClient,
+                    phone: e.target.value,
+                  })
+                }
+                required
+              />
+            </label>
+            <label>
+              <span className="form-label">Email</span>
+              <input
+                type="email"
+                value={selectedClient.email}
+                onChange={(e) =>
+                  setSelectedClient({
+                    ...selectedClient,
+                    email: e.target.value,
+                  })
+                }
+                required
+              />
+            </label>
+            <label>
+              <span className="form-label">GST Number (optional)</span>
+              <input
+                type="text"
+                value={selectedClient.gstNumber || ""}
+                onChange={(e) =>
+                  setSelectedClient({
+                    ...selectedClient,
+                    gstNumber: e.target.value,
+                  })
+                }
+              />
+            </label>
+            <label>
+              <span className="form-label">Joined Date</span>
+              <input
+                type="date"
+                value={selectedClient.joinDate}
+                className="readonly-input"
+                readOnly
+              />
+            </label>
+            <label className="full">
+              <span className="form-label">Additional Notes (optional)</span>
+              <textarea
+                rows="3"
+                value={selectedClient.notes || ""}
+                onChange={(e) =>
+                  setSelectedClient({
+                    ...selectedClient,
+                    notes: e.target.value,
+                  })
+                }
+              />
+            </label>
+          </div>
+          <div className="modal-footer">
+            <div className="modal-footer-left">
+              <button
+                type="button"
+                className="action-btn delete-btn"
+                onClick={handleDeleteClient}
+              >
+                <FaTrash />
+                Delete Client
+              </button>
+            </div>
+            <div className="modal-footer-right">
+              <button
+                type="button"
+                className="action-btn secondary"
+                onClick={handleCloseEdit}
+              >
+                Cancel
+              </button>
+              <button type="submit" className="action-btn primary">
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>,
+    document.body
+  )}
+</div>
+</div>
+);
 }
