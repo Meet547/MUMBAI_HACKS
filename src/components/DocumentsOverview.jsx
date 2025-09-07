@@ -102,15 +102,15 @@ export default function DocumentsOverview() {
 
   return (
     <div className="standard-page-container">
-      <div className="standard-content-container">
+      <div className="standard-content-container centered">
         {/* Header */}
-        <div className="overview-header">
+        <div className="page-header">
           <button className="back-btn" onClick={handleBackToDashboard}>
             <FaArrowLeft />
             Back to Dashboard
           </button>
-          <h1 className="overview-title">Documents Overview</h1>
-          <p className="overview-subtitle">
+          <h1 className="page-title">Documents Overview</h1>
+          <p className="page-subtitle">
             Manage and track all your generated documents
           </p>
         </div>

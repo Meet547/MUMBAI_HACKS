@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   FaUser, 
@@ -14,6 +14,26 @@ import "../styles/Sidebar.css";
 export default function Sidebar({ userName = "rj007", currentPage = "" }) {
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const sidebarRef = useRef(null);
+
+  // Close sidebar on outside click when expanded
+  useEffect(() => {
+    const handleOutsidePointer = (event) => {
+      if (!isCollapsed && sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setIsCollapsed(true);
+      }
+    };
+
+    // Use capture phase to ensure we detect clicks anywhere on the page
+    document.addEventListener("pointerdown", handleOutsidePointer, true);
+    document.addEventListener("touchstart", handleOutsidePointer, true);
+    document.addEventListener("mousedown", handleOutsidePointer, true);
+    return () => {
+      document.removeEventListener("pointerdown", handleOutsidePointer, true);
+      document.removeEventListener("touchstart", handleOutsidePointer, true);
+      document.removeEventListener("mousedown", handleOutsidePointer, true);
+    };
+  }, [isCollapsed]);
 
   const menuItems = [
     {
@@ -36,13 +56,10 @@ export default function Sidebar({ userName = "rj007", currentPage = "" }) {
     },
     {
       id: "account",
-      label: "Account",
+      label: "Account Settings",
       icon: <FaWrench />,
-      path: "/account"
-    }
-  ];
-
-  const bottomItems = [
+      path: "/account-settings"
+    },
     {
       id: "help",
       label: "Help",
@@ -72,7 +89,7 @@ export default function Sidebar({ userName = "rj007", currentPage = "" }) {
   };
 
   return (
-    <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+    <div ref={sidebarRef} className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       {/* User Profile Section */}
       <div className="sidebar-header">
         <div className="user-profile">
@@ -89,26 +106,7 @@ export default function Sidebar({ userName = "rj007", currentPage = "" }) {
           {menuItems.map((item) => (
             <li key={item.id}>
               <button
-                className={`sidebar-item ${currentPage === item.id ? 'active' : ''}`}
-                onClick={() => handleMenuClick(item)}
-                title={isCollapsed ? item.label : ""}
-              >
-                <span className="sidebar-icon">{item.icon}</span>
-                {!isCollapsed && <span className="sidebar-label">{item.label}</span>}
-              </button>
-            </li>
-          ))}
-        </ul>
-
-        {/* Separator Line */}
-        {!isCollapsed && <div className="sidebar-separator"></div>}
-
-        {/* Bottom Menu Items */}
-        <ul className="sidebar-menu sidebar-bottom">
-          {bottomItems.map((item) => (
-            <li key={item.id}>
-              <button
-                className={`sidebar-item ${currentPage === item.id ? 'active' : ''}`}
+                className={`sidebar-item ${currentPage === item.id ? "active" : ""}`}
                 onClick={() => handleMenuClick(item)}
                 title={isCollapsed ? item.label : ""}
               >
@@ -119,6 +117,7 @@ export default function Sidebar({ userName = "rj007", currentPage = "" }) {
           ))}
         </ul>
       </nav>
+
 
       {/* Toggle Button */}
       <button className="sidebar-toggle" onClick={toggleSidebar}>

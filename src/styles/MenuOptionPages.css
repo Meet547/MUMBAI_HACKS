@@ -1,0 +1,33 @@
+/* Shared layout for menu option pages */
+.mop-page { min-height: 100vh; background: #4a5fd4; display:flex; align-items:center; justify-content:center; padding:20px; margin-top:0; }
+.mop-container { background:#fff; border-radius:20px; box-shadow:0 20px 40px rgba(0,0,0,0.1); padding:24px; width:95vw; height:80vh; overflow:auto; position:absolute; top:calc(50% + 35px); left:50%; transform:translate(-50%,-50%); }
+.mop-layout { display:grid; grid-template-columns: 220px 1fr; gap:24px; align-items:start; }
+.mop-sidebar { display:flex; flex-direction:column; gap:12px; position:sticky; top:0; align-self:start; }
+.mop-main { min-width:0; }
+.mop-layout .mop-main:only-child { grid-column: 1 / -1; }
+.mop-header { text-align:center; margin-bottom:1rem; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; }
+.mop-header .back-btn, .mop-header .next-btn { position:static; }
+.mop-row .back-btn, .mop-actions .back-btn { position: static; }
+.mop-topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+.mop-topbar .back-btn, .mop-topbar .next-btn { position: static; }
+.mop-sidebar .back-btn { position: static; width: 100%; justify-content: center; }
+.mop-sidebar .back-btn + .back-btn { margin-top: 8px; }
+.mop-title { font-size:2rem; font-weight:700; color:#1a1a1a; margin:0 0 0.25rem 0; }
+.mop-subtitle { font-size:1rem; color:#64748b; margin:0; }
+
+/* Content styling - full width section cards */
+.mop-section { background:#ffffff; border:2px solid #f1f5f9; border-radius:15px; padding:1rem; box-shadow:0 4px 12px rgba(0,0,0,0.06); }
+.mop-grid { display:grid; grid-template-columns:1fr; gap:1rem; }
+.mop-row { display:flex; align-items:center; gap:0.75rem; padding:0.5rem 0; color:#475569; }
+.mop-row label { font-weight:600; color:#475569; min-width:120px; }
+.mop-row input, .mop-row select { flex:1; border:2px solid #e2e8f0; border-radius:10px; padding:0.7rem 0.9rem; font-size:0.95rem; background:#fff; color:#1a1a1a; }
+.mop-row input:focus, .mop-row select:focus { border-color:#60a5fa; box-shadow:0 0 0 3px rgba(96,165,250,0.12); outline:none; }
+.mop-actions { display:flex; justify-content:center; }
+.mop-actions .back-btn { position:static; }
+
+@media (max-width: 768px){
+  .mop-container { width:95vw; height:85vh; padding:16px; }
+  .mop-layout { grid-template-columns: 1fr; }
+  .mop-sidebar { position:static; flex-direction:row; flex-wrap:wrap; gap:8px; }
+}
+

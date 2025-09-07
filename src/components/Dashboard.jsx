@@ -8,8 +8,17 @@ import {
   FaClock,
   FaCalendarAlt,
   FaArrowRight,
+  FaBell,
+  FaCog,
+  FaStar,
+  FaWrench,
+  FaQuestionCircle,
+  FaSignOutAlt,
 } from "react-icons/fa";
 import "../styles/Dashboard.css";
+import lawyerImage from "../Images/lawyer.png";
+import hrwomanImage from "../Images/HRwoman.png";
+import cacsImage from "../Images/cacs.png";
 
 // Custom hook for number animation
 const useCountAnimation = (endValue, duration = 1500, delay = 0) => {
@@ -63,7 +72,11 @@ const AnimatedNumber = ({ value, delay = 0, className = "" }) => {
 export default function Dashboard() {
   const location = useLocation();
   const navigate = useNavigate();
-  const userProfile = location.state?.userProfile;
+  const userProfileState = location.state?.userProfile;
+  const storedProfile = (() => {
+    try { return JSON.parse(localStorage.getItem('userProfile') || 'null'); } catch { return null; }
+  })();
+  const userProfile = userProfileState || storedProfile;
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState(null);
@@ -121,30 +134,50 @@ export default function Dashboard() {
   // Handle click outside sidebar and body scroll
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        sidebarRef.current &&
-        !sidebarRef.current.contains(event.target) &&
-        overlayRef.current &&
-        !overlayRef.current.contains(event.target)
-      ) {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
         setIsSidebarOpen(false);
       }
     };
 
     if (isSidebarOpen) {
-      // Add event listener when sidebar is open
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("pointerdown", handleClickOutside, true);
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
     }
 
-    // Cleanup function - remove event listener when component unmounts or dependency changes
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("pointerdown", handleClickOutside, true);
       document.body.style.overflow = "unset";
     };
   }, [isSidebarOpen]);
+
+  const handleSidebarNav = (itemId) => {
+    switch (itemId) {
+      case "notifications":
+        navigate("/notifications");
+        break;
+      case "profile-settings":
+        navigate("/profile-settings");
+        break;
+      case "upgrade-plan":
+        navigate("/upgrade-plan");
+        break;
+      case "account-settings":
+        navigate("/account-settings");
+        break;
+      case "help":
+        navigate("/help");
+        break;
+      case "logout":
+        console.log("Logging out...");
+        navigate("/");
+        break;
+      default:
+        break;
+    }
+    setIsSidebarOpen(false);
+  };
 
   return (
     <div className="dashboard-page-wrapper">
@@ -438,7 +471,7 @@ export default function Dashboard() {
 
       {/* Sidebar Overlay */}
       {isSidebarOpen && (
-        <div className="sidebar-overlay" ref={overlayRef}></div>
+        <div className="sidebar-overlay" ref={overlayRef} onClick={() => setIsSidebarOpen(false)}></div>
       )}
 
       {/* Sidebar */}
@@ -455,27 +488,41 @@ export default function Dashboard() {
 
         <div className="sidebar-content">
           {userProfile && (
-            <>
-              <div className="profile-info">
-                <div className="profile-avatar">
-                  <FaUser />
-                </div>
-                <h4>{userProfile.name}</h4>
-                <p>{userProfile.email}</p>
-                <p className="industry">{userProfile.industry}</p>
+            <div className="profile-info">
+              <div className="profile-avatar face-avatar">
+                <img src={userProfile?.userType === 'HR manager' ? hrwomanImage : userProfile?.userType === 'Chartered Accountant' ? cacsImage : lawyerImage} alt="Profile" />
               </div>
-            </>
+              <h4>{userProfile.name}</h4>
+              <p>{userProfile.email}</p>
+              <p className="industry">{userProfile.industry}</p>
+            </div>
           )}
 
           <div className="sidebar-menu">
-            <div className="menu-item">
-              <FaChartLine />
-              <span>Analytics</span>
-            </div>
-            <div className="menu-item">
-              <FaUser />
-              <span>Settings</span>
-            </div>
+            <button className="menu-item" onClick={() => handleSidebarNav("notifications")}>
+              <FaBell />
+              <span>Notifications</span>
+            </button>
+            <button className="menu-item" onClick={() => handleSidebarNav("profile-settings")}>
+              <FaCog />
+              <span>Profile Settings</span>
+            </button>
+            <button className="menu-item" onClick={() => handleSidebarNav("upgrade-plan")}>
+              <FaStar />
+              <span>Upgrade Plan</span>
+            </button>
+            <button className="menu-item" onClick={() => handleSidebarNav("account-settings")}>
+              <FaWrench />
+              <span>Account Settings</span>
+            </button>
+            <button className="menu-item" onClick={() => handleSidebarNav("help")}>
+              <FaQuestionCircle />
+              <span>Help</span>
+            </button>
+            <button className="menu-item" onClick={() => handleSidebarNav("logout")}>
+              <FaSignOutAlt />
+              <span>Log out</span>
+            </button>
           </div>
         </div>
       </div>

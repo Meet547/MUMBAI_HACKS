@@ -103,3 +103,70 @@ body {
 .standard-content-container::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
+
+/* Standardized header, title, subtitle and back button (matches Client Vault) */
+.page-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.page-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.5rem 0;
+}
+
+.page-subtitle {
+  font-size: 1.05rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.back-btn {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+.back-btn:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  transform: translateX(-2px);
+}
+
+/* Optional: centered variant used on Client Vault */
+.standard-content-container.centered {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px 48px;
+  width: 95vw;
+  height: 80vh;
+  text-align: center;
+  overflow: auto;
+  margin: 0;
+  position: absolute;
+  top: calc(50% + 35px);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  scrollbar-width: thin;
+  -ms-overflow-style: auto;
+}
+
+.standard-content-container.centered::-webkit-scrollbar { width: 8px; }
+.standard-content-container.centered::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+.standard-content-container.centered::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+.standard-content-container.centered::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }

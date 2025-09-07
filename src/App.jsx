@@ -11,6 +11,11 @@ import ClientVault from "./components/ClientVault";
 import DocumentsOverview from "./components/DocumentsOverview";
 import PendingDocuments from "./components/PendingDocuments";
 import ComplianceCalendar from "./components/ComplianceCalendar";
+import Notifications from "./components/Notifications";
+import ProfileSettings from "./components/ProfileSettings";
+import UpgradePlan from "./components/UpgradePlan";
+import AccountSettings from "./components/AccountSettings";
+import Help from "./components/Help";
 
 function HomePage() {
   return (
@@ -104,6 +109,11 @@ function App() {
           path="/compliance-calendar"
           element={<ComplianceCalendarPage />}
         />
+        <Route path="/notifications" element={<div className="client-vault-page"><Navbar /><Notifications /></div>} />
+        <Route path="/profile-settings" element={<div className="client-vault-page"><Navbar /><ProfileSettings /></div>} />
+        <Route path="/upgrade-plan" element={<div className="client-vault-page"><Navbar /><UpgradePlan /></div>} />
+        <Route path="/account-settings" element={<div className="client-vault-page"><Navbar /><AccountSettings /></div>} />
+        <Route path="/help" element={<div className="client-vault-page"><Navbar /><Help /></div>} />
       </Routes>
     </Router>
   );

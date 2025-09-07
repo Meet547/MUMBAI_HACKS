@@ -37,7 +37,8 @@ export default function Navbar() {
             className={`nav-link ${isActive("/") ? "active" : ""}`}
             onClick={(e) => {
               e.preventDefault();
-              handleNavClick("/");
+              const hasProfile = !!localStorage.getItem('userProfile');
+              handleNavClick(hasProfile ? "/dashboard" : "/");
             }}
           >
             Home
@@ -56,10 +57,12 @@ export default function Navbar() {
           </a>
         </div>
 
-        {/* Auth Buttons */}
-        <div className="navbar-auth">
-          <button className="auth-btn login-btn">Login</button>
-        </div>
+        {/* Auth Buttons - hidden on dashboard */}
+        {!["/dashboard","/client-vault","/documents-overview","/pending-documents","/compliance-calendar","/notifications","/profile-settings","/upgrade-plan","/account-settings","/help"].includes(location.pathname) && (
+          <div className="navbar-auth">
+            <button className="auth-btn login-btn">Login</button>
+          </div>
+        )}
 
         {/* Mobile Menu Button */}
         <button

@@ -125,15 +125,15 @@ export default function PendingDocuments() {
 
   return (
     <div className="standard-page-container">
-      <div className="standard-content-container">
+      <div className="standard-content-container centered">
         {/* Header */}
-        <div className="pending-header">
+        <div className="page-header">
           <button className="back-btn" onClick={handleBackToDashboard}>
             <FaArrowLeft />
             Back to Dashboard
           </button>
-          <h1 className="pending-title">Pending Documents</h1>
-          <p className="pending-subtitle">
+          <h1 className="page-title">Pending Documents</h1>
+          <p className="page-subtitle">
             Review and manage documents awaiting approval
           </p>
         </div>

@@ -1,19 +1,21 @@
 /* Sidebar Styles */
 .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    width: 280px;
-    background: linear-gradient(180deg, #4a5fd4 0%, #5a6fd8 100%);
-    color: white;
-    transition: all 0.3s ease;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    border-radius: 0 20px 20px 0;
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
-  }
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;         /* full screen height */
+  width: 280px;
+  display: flex;
+  flex-direction: column; /* stack children top-to-bottom */
+  background: linear-gradient(180deg, #4a5fd4 0%, #5a6fd8 100%);
+  color: white;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  border-radius: 0 20px 20px 0;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+  overflow-y: auto;       /* allow vertical scrolling for all items */
+  overflow-x: hidden;     /* prevent horizontal scrolling */
+}
   
   .sidebar.collapsed {
     width: 80px;
@@ -21,7 +23,7 @@
   
   /* Header Section */
   .sidebar-header {
-    padding: 24px 20px;
+    padding: 16px 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
   
@@ -61,28 +63,31 @@
   /* Navigation */
   .sidebar-nav {
     flex: 1;
-    padding: 20px 0;
+    padding: 20px 0 40px 0; /* extra bottom padding to ensure last items are visible */
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 12px;
   }
   
   .sidebar-menu {
     list-style: none;
     padding: 0;
     margin: 0;
+    overflow: visible; /* ensure all items are visible */
   }
   
   .sidebar-menu li {
-    margin-bottom: 8px;
+    margin-bottom: 4px;
+    flex-shrink: 0; /* prevent items from shrinking */
   }
   
   .sidebar-item {
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 14px 20px;
+    gap: 12px;
+    padding: 10px 16px;
     background: none;
     border: none;
     color: rgba(255, 255, 255, 0.8);
@@ -144,10 +149,7 @@
     opacity: 0;
   }
   
-  /* Bottom Menu */
-  .sidebar-bottom {
-    margin-top: auto;
-  }
+  
   
   /* Toggle Button */
   .sidebar-toggle {
@@ -241,4 +243,4 @@
   
   .sidebar {
     animation: slideIn 0.3s ease-out;
-  } 
+  }

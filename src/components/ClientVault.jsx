@@ -16,70 +16,103 @@ import {
 } from "react-icons/fa";
 import "../styles/ClientVault.css";
 import { createPortal } from "react-dom";
-
-
-// Enhanced confetti effect
 const createConfetti = () => {
-  const colors = ["#60a5fa", "#34d399", "#fbbf24", "#f472b6", "#a78bfa", "#ff6b6b", "#4ecdc4"];
-  const shapes = ["circle", "square", "triangle"];
-  const confettiCount = 80;
+  // GitHub's exact color palette - bright and saturated
+  const colors = [
+    "#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#ffeaa7", 
+    "#dda0dd", "#98d8c8", "#f7dc6f", "#bb8fce", "#85c1e9"
+  ];
+  
+  // GitHub's shapes: squares, circles, and thin rectangles
+  const shapes = ["square", "circle", "rectangle"];
+  
+  // 50-100 particles responsive to screen width
+  const count = Math.min(100, Math.max(50, Math.floor(window.innerWidth / 12)));
 
-  for (let i = 0; i < confettiCount; i++) {
+  for (let i = 0; i < count; i++) {
     const confetti = document.createElement("div");
     const shape = shapes[Math.floor(Math.random() * shapes.length)];
     const color = colors[Math.floor(Math.random() * colors.length)];
-    const size = Math.random() * 8 + 4; // 4-12px
     
     confetti.style.position = "fixed";
-    confetti.style.width = size + "px";
-    confetti.style.height = size + "px";
-    confetti.style.backgroundColor = color;
-    confetti.style.left = Math.random() * 100 + "vw";
-    confetti.style.top = "-20px";
-    confetti.style.zIndex = "9999";
+    confetti.style.zIndex = "10000";
     confetti.style.pointerEvents = "none";
-    confetti.style.opacity = "0.9";
+    confetti.style.willChange = "transform, opacity";
     
-    // Different shapes
-    if (shape === "circle") {
+    // Start from random X positions across full screen width
+    confetti.style.left = Math.random() * 100 + "vw";
+    // Start slightly above viewport
+    confetti.style.top = (-20 - Math.random() * 30) + "px";
+    
+    // Shape creation with GitHub's exact sizing
+    if (shape === "square") {
+      const size = Math.random() * 4 + 4; // 4-8px
+      confetti.style.width = size + "px";
+      confetti.style.height = size + "px";
+      confetti.style.backgroundColor = color;
+    } else if (shape === "circle") {
+      const size = Math.random() * 4 + 4; // 4-8px
+      confetti.style.width = size + "px";
+      confetti.style.height = size + "px";
+      confetti.style.backgroundColor = color;
       confetti.style.borderRadius = "50%";
-    } else if (shape === "triangle") {
-      confetti.style.width = "0";
-      confetti.style.height = "0";
-      confetti.style.backgroundColor = "transparent";
-      confetti.style.borderLeft = size/2 + "px solid transparent";
-      confetti.style.borderRight = size/2 + "px solid transparent";
-      confetti.style.borderBottom = size + "px solid " + color;
+    } else if (shape === "rectangle") {
+      // Thin rectangles: 2-3px wide by 8-15px tall
+      const width = Math.random() * 1 + 2; // 2-3px
+      const height = Math.random() * 7 + 8; // 8-15px
+      confetti.style.width = width + "px";
+      confetti.style.height = height + "px";
+      confetti.style.backgroundColor = color;
+      confetti.style.borderRadius = "1px";
     }
-    // square is default (no additional styling needed)
-
+    
     document.body.appendChild(confetti);
-
-    const horizontalMovement = (Math.random() - 0.5) * 200; // -100px to 100px
-    const rotationAmount = Math.random() * 1080 + 360; // 360-1440 degrees
-
-    const animation = confetti.animate(
-      [
-        { 
-          transform: "translateY(0px) translateX(0px) rotate(0deg)", 
-          opacity: 0.9,
-          filter: "blur(0px)"
-        },
-        {
-          transform: `translateY(${window.innerHeight + 100}px) translateX(${horizontalMovement}px) rotate(${rotationAmount}deg)`,
-          opacity: 0,
-          filter: "blur(1px)"
-        },
-      ],
+    
+    // GitHub's exact animation parameters
+    const horizontalDrift = (Math.random() - 0.5) * 300; // ±150px max
+    const rotationAmount = Math.random() * 1440 + 360; // continuous rotation
+    const fallDistance = window.innerHeight + 100;
+    const fallDuration = Math.random() * 2000 + 4000; // 4-6 seconds
+    const delay = Math.random() * 500; // particles released over first 500ms
+    
+    // Natural gravity curve with GitHub's exact easing
+    const animation = confetti.animate([
       {
-        duration: Math.random() * 2000 + 2500, // 2.5-4.5 seconds
-        easing: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        transform: `translateX(0px) translateY(0px) rotate(0deg)`,
+        opacity: 1
+      },
+      {
+        transform: `translateX(${horizontalDrift * 0.2}px) translateY(${fallDistance * 0.2}px) rotate(${rotationAmount * 0.2}deg)`,
+        opacity: 1,
+        offset: 0.2
+      },
+      {
+        transform: `translateX(${horizontalDrift * 0.5}px) translateY(${fallDistance * 0.5}px) rotate(${rotationAmount * 0.5}deg)`,
+        opacity: 0.9,
+        offset: 0.5
+      },
+      {
+        transform: `translateX(${horizontalDrift * 0.8}px) translateY(${fallDistance * 0.8}px) rotate(${rotationAmount * 0.8}deg)`,
+        opacity: 0.7,
+        offset: 0.8
+      },
+      {
+        transform: `translateX(${horizontalDrift}px) translateY(${fallDistance}px) rotate(${rotationAmount}deg)`,
+        opacity: 0
       }
-    );
-
-    animation.onfinish = () => {
-      confetti.remove();
-    };
+    ], {
+      duration: fallDuration,
+      delay: delay,
+      easing: "cubic-bezier(0.25, 0.46, 0.45, 0.94)", // GitHub's exact easing
+      fill: "forwards"
+    });
+    
+    // Clean up when animation completes
+    animation.addEventListener('finish', () => {
+      if (confetti.parentNode) {
+        confetti.parentNode.removeChild(confetti);
+      }
+    });
   }
 };
 
@@ -97,6 +130,8 @@ export default function ClientVault() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchFilter, setSearchFilter] = useState("all");
   const [viewMode, setViewMode] = useState("grid"); // 'grid' | 'list'
+  const [cardsPopKey, setCardsPopKey] = useState(0);
+  const [popActive, setPopActive] = useState(false);
 
   // Local state for clients to enable add/edit
   const [clients, setClients] = useState([
@@ -109,6 +144,7 @@ export default function ClientVault() {
       joinDate: "2023-01-15",
       documents: 45,
       firmAddress: "12, Business Park, Mumbai",
+      clientIndustry: "Technology",
       gstNumber: "27AAAAA0000A1Z5",
       notes: "Priority corporate client.",
       pinned: false,
@@ -122,6 +158,7 @@ export default function ClientVault() {
       joinDate: "2023-03-22",
       documents: 32,
       firmAddress: "21, Central Ave, Bengaluru",
+      clientIndustry: "Legal Services",
       gstNumber: "29BBBBB1111B2Z6",
       notes: "Focus: IP and trademarks.",
       pinned: false,
@@ -135,6 +172,7 @@ export default function ClientVault() {
       joinDate: "2023-05-10",
       documents: 28,
       firmAddress: "45, Corporate Park, Delhi",
+      clientIndustry: "Manufacturing",
       gstNumber: "07CCCCC2222C3Z7",
       notes: "International contracts.",
       pinned: false,
@@ -148,6 +186,7 @@ export default function ClientVault() {
       joinDate: "2023-07-18",
       documents: 19,
       firmAddress: "88, Lake View, Pune",
+      clientIndustry: "Healthcare",
       gstNumber: "27DDDDD3333D4Z8",
       notes: "Family law desk.",
       pinned: false,
@@ -162,6 +201,7 @@ export default function ClientVault() {
       joinDate: "2023-08-04",
       documents: 12,
       firmAddress: "77, Tech Park, Hyderabad",
+      clientIndustry: "Technology",
       gstNumber: "36EEEEE4444E5Z9",
       notes: "Startup compliance.",
       pinned: false,
@@ -175,6 +215,7 @@ export default function ClientVault() {
       joinDate: "2023-09-16",
       documents: 25,
       firmAddress: "9, Market Street, Chennai",
+      clientIndustry: "Real Estate",
       gstNumber: "33FFFFF5555F6Z0",
       notes: "Property contracts",
       pinned: false,
@@ -188,6 +229,7 @@ export default function ClientVault() {
       joinDate: "2023-10-01",
       documents: 7,
       firmAddress: "16, Eco Towers, Jaipur",
+      clientIndustry: "Manufacturing",
       gstNumber: "08GGGGG6666G7Z1",
       notes: "Sustainability M&A",
       pinned: false,
@@ -201,6 +243,7 @@ export default function ClientVault() {
       joinDate: "2023-10-21",
       documents: 18,
       firmAddress: "2, Industrial Area, Surat",
+      clientIndustry: "Manufacturing",
       gstNumber: "24HHHHH7777H8Z2",
       notes: "Labour compliance",
       pinned: false,
@@ -214,6 +257,7 @@ export default function ClientVault() {
       joinDate: "2023-11-02",
       documents: 15,
       firmAddress: "Dockyard Road, Kochi",
+      clientIndustry: "Manufacturing",
       gstNumber: "32IIIII8888I9Z3",
       notes: "Admiralty matters",
       pinned: false,
@@ -227,6 +271,7 @@ export default function ClientVault() {
       joinDate: "2023-11-20",
       documents: 22,
       firmAddress: "Wellness Park, Ahmedabad",
+      clientIndustry: "Healthcare",
       gstNumber: "24JJJJJ9999J1Z4",
       notes: "Healthcare compliance",
       pinned: false,
@@ -240,6 +285,7 @@ export default function ClientVault() {
       joinDate: "2023-12-05",
       documents: 30,
       firmAddress: "Cloud Hub, Gurugram",
+      clientIndustry: "Technology",
       gstNumber: "06KKKKK0000K2Z5",
       notes: "SaaS contracts",
       pinned: false,
@@ -253,6 +299,7 @@ export default function ClientVault() {
       joinDate: "2023-12-18",
       documents: 11,
       firmAddress: "Food Park, Indore",
+      clientIndustry: "Manufacturing",
       gstNumber: "23LLLLL1111L3Z6",
       notes: "FSSAI & labeling",
       pinned: false,
@@ -266,6 +313,7 @@ export default function ClientVault() {
       joinDate: "2024-01-02",
       documents: 14,
       firmAddress: "Auto Zone, Nashik",
+      clientIndustry: "Manufacturing",
       gstNumber: "27MMMMM2222M4Z7",
       notes: "Vendor agreements",
       pinned: false,
@@ -279,6 +327,7 @@ export default function ClientVault() {
       joinDate: "2024-01-09",
       documents: 26,
       firmAddress: "IFSC Complex, GIFT City",
+      clientIndustry: "Others",
       gstNumber: "24NNNNN3333N5Z8",
       notes: "NBFC compliance",
       pinned: false,
@@ -298,35 +347,44 @@ export default function ClientVault() {
     email: "",
     firmName: "",
     firmAddress: "",
+    clientIndustry: "",
     gstNumber: "",
     documents: 0,
     joinDate: new Date().toISOString().slice(0, 10),
     notes: "",
   });
 
+  // Helper function to normalize search terms (remove dashes, spaces, etc.)
+  const normalizeSearchTerm = (term) => {
+    return term.toLowerCase().replace(/[-\s]/g, '');
+  };
+
   const filteredClients = clients
     .filter((client) => {
       if (!searchTerm) return true;
 
-      const searchLower = searchTerm.toLowerCase();
+      const searchLower = normalizeSearchTerm(searchTerm);
 
       if (searchFilter === "all") {
-        const haystack =
-          `${client.name} ${client.firmName} ${client.email} ${client.phone} ${client.id} ${client.gstNumber}`.toLowerCase();
+        const haystack = normalizeSearchTerm(
+          `${client.name} ${client.firmName} ${client.email} ${client.phone} ${client.id} ${client.gstNumber} ${client.clientIndustry || ''}`
+        );
         return haystack.includes(searchLower);
       }
       if (searchFilter === "name")
-        return client.name.toLowerCase().includes(searchLower);
+        return normalizeSearchTerm(client.name).includes(searchLower);
       if (searchFilter === "id")
         return client.id.toString().includes(searchLower);
       if (searchFilter === "phone")
-        return client.phone.toLowerCase().includes(searchLower);
+        return normalizeSearchTerm(client.phone).includes(searchLower);
       if (searchFilter === "email")
-        return client.email.toLowerCase().includes(searchLower);
+        return normalizeSearchTerm(client.email).includes(searchLower);
       if (searchFilter === "firm")
-        return client.firmName?.toLowerCase().includes(searchLower) || false;
+        return normalizeSearchTerm(client.firmName || '').includes(searchLower);
+      if (searchFilter === "industry")
+        return normalizeSearchTerm(client.clientIndustry || '').includes(searchLower);
       if (searchFilter === "gst")
-        return client.gstNumber?.toLowerCase().includes(searchLower) || false;
+        return normalizeSearchTerm(client.gstNumber || '').includes(searchLower);
 
       return true;
     })
@@ -339,6 +397,16 @@ export default function ClientVault() {
       }
       return b.id - a.id; // Latest first
     });
+
+  // Trigger a subtle pop ONLY when result set changes
+  React.useEffect(() => {
+    const resultSignature = filteredClients.map((c) => c.id).join(',');
+    setPopActive(true);
+    setCardsPopKey((k) => k + 1);
+    const t = setTimeout(() => setPopActive(false), 180);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredClients.length, filteredClients.map((c) => c.id).join(',')]);
 
   const handleBackToDashboard = () => {
     navigate("/dashboard");
@@ -355,6 +423,7 @@ export default function ClientVault() {
       email: "",
       firmName: "",
       firmAddress: "",
+      clientIndustry: "",
       gstNumber: "",
       documents: 0,
       joinDate: new Date().toISOString().slice(0, 10),
@@ -436,6 +505,7 @@ export default function ClientVault() {
       email: "",
       firmName: "",
       firmAddress: "",
+      clientIndustry: "",
       gstNumber: "",
       documents: 0,
       joinDate: new Date().toISOString().slice(0, 10),
@@ -497,7 +567,9 @@ export default function ClientVault() {
               type="text"
               placeholder="Search clients..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+              }}
               className="search-input"
             />
             <select
@@ -511,6 +583,7 @@ export default function ClientVault() {
               <option value="phone">Phone</option>
               <option value="email">Email</option>
               <option value="firm">Firm Name</option>
+              <option value="industry">Industry</option>
               <option value="gst">GST Number</option>
             </select>
           </div>
@@ -580,8 +653,8 @@ export default function ClientVault() {
             <div className="clients-grid">
               {filteredClients.map((client) => (
                 <div
-                  key={client.id}
-                  className={`client-card ${client.pinned ? "pinned" : ""}`}
+                  key={`${client.id}-${cardsPopKey}`}
+                  className={`client-card ${popActive ? 'pop' : ''} ${client.pinned ? "pinned" : ""}`}
                 >
                   <button
                     className="pin-btn"
@@ -649,6 +722,7 @@ export default function ClientVault() {
                 <div className="header-cell">Email</div>
                 <div className="header-cell">Firm Name</div>
                 <div className="header-cell">Address</div>
+                <div className="header-cell">Industry</div>
                 <div className="header-cell">GST</div>
                 <div className="header-cell center">Docs</div>
                 <div className="header-cell">Joined</div>
@@ -674,6 +748,7 @@ export default function ClientVault() {
                       {client.firmName || "Individual"}
                     </div>
                     <div className="row-cell">{client.firmAddress}</div>
+                    <div className="row-cell">{client.clientIndustry || "-"}</div>
                     <div className="row-cell">{client.gstNumber || "-"}</div>
                     <div className="row-cell center">{client.documents}</div>
                     <div className="row-cell">
@@ -751,7 +826,7 @@ export default function ClientVault() {
               />
             </label>
             <label>
-              <span className="form-label">Firm Address</span>
+              <span className="form-label">Address (Firm/Residence)</span>
               <input
                 type="text"
                 value={newClient.firmAddress}
@@ -759,6 +834,25 @@ export default function ClientVault() {
                   setNewClient({ ...newClient, firmAddress: e.target.value })
                 }
               />
+            </label>
+            <label>
+              <span className="form-label">Client Industry</span>
+              <select
+                value={newClient.clientIndustry}
+                onChange={(e) =>
+                  setNewClient({ ...newClient, clientIndustry: e.target.value })
+                }
+              >
+                <option value="">Select Industry</option>
+                <option value="Technology">Technology</option>
+                <option value="Retail">Retail</option>
+                <option value="Real Estate">Real Estate</option>
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Hospitality">Hospitality</option>
+                <option value="Legal Services">Legal Services</option>
+                <option value="Others">Others</option>
+              </select>
             </label>
             <label>
               <span className="form-label">Contact Number</span>
@@ -869,9 +963,15 @@ document.body
               </span>
             </div>
             <div className="detail-row">
-              <span className="detail-label">Firm Address:</span>
+              <span className="detail-label">Address (Firm/Residence):</span>
               <span className="detail-value">
                 {selectedClient.firmAddress || "-"}
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Client Industry:</span>
+              <span className="detail-value">
+                {selectedClient.clientIndustry || "-"}
               </span>
             </div>
             <div className="detail-row">
@@ -984,7 +1084,7 @@ document.body
               />
             </label>
             <label>
-              <span className="form-label">Firm Address</span>
+              <span className="form-label">Address (Firm/Residence)</span>
               <input
                 type="text"
                 value={selectedClient.firmAddress || ""}
@@ -995,6 +1095,28 @@ document.body
                   })
                 }
               />
+            </label>
+            <label>
+              <span className="form-label">Client Industry</span>
+              <select
+                value={selectedClient.clientIndustry || ""}
+                onChange={(e) =>
+                  setSelectedClient({
+                    ...selectedClient,
+                    clientIndustry: e.target.value,
+                  })
+                }
+              >
+                <option value="">Select Industry</option>
+                <option value="Technology">Technology</option>
+                <option value="Retail">Retail</option>
+                <option value="Real Estate">Real Estate</option>
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Hospitality">Hospitality</option>
+                <option value="Legal Services">Legal Services</option>
+                <option value="Others">Others</option>
+              </select>
             </label>
             <label>
               <span className="form-label">Contact Number</span>

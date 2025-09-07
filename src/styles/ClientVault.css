@@ -148,6 +148,23 @@
   box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
 }
 
+/* Search animation */
+.search-animate {
+  animation: searchPop 0.3s ease-out;
+}
+
+@keyframes searchPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .add-client-btn {
   background: #60a5fa;
   color: #ffffff;
@@ -283,6 +300,17 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 1.25rem;
+}
+
+/* Card pop animation when search updates */
+.client-card.pop {
+  animation: cardPop 180ms ease-out;
+}
+
+@keyframes cardPop {
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+  50% { transform: scale(1.01); box-shadow: 0 10px 24px rgba(96, 165, 250, 0.12); }
+  100% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
 }
 
 .client-card {
@@ -697,6 +725,28 @@
   color: #334155;
   font-weight: 600;
 }
+.form-list select {
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: #ffffff;
+  color: #1a1a1a;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none' stroke='%2362748b' stroke-width='2'%3E%3Cpolyline points='5,7 10,12 15,7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+.form-list select:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.12);
+}
 .form-list label.highlight {
   background: rgba(96, 165, 250, 0.1);
   padding: 1rem;
@@ -708,6 +758,11 @@
   font-weight: 600;
   color: #475569;
   text-align: left;
+}
+.form-list .select-help {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: -0.25rem;
 }
 .form-list input,
 .form-list textarea {

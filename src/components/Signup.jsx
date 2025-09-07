@@ -28,6 +28,7 @@ export default function Signup() {
     name: "",
     email: "",
     industry: "",
+    customIndustry: "",
   });
   const [errors, setErrors] = useState({});
 
@@ -93,8 +94,9 @@ export default function Signup() {
       newErrors.email = "Please enter a valid email address";
     }
 
-    if (!formData.industry.trim()) {
-      newErrors.industry = "Industry is required";
+    // Industry is now optional, but if custom industry is selected, it must be filled
+    if (formData.industry === "Others" && !formData.customIndustry.trim()) {
+      newErrors.customIndustry = "Please specify your industry";
     }
 
     setErrors(newErrors);
@@ -105,14 +107,16 @@ export default function Signup() {
     if (validateForm()) {
       console.log("Form submitted:", { selectedType, ...formData });
       // Navigate to dashboard with user profile data
+      const userProfile = {
+        name: formData.name,
+        email: formData.email,
+        industry: formData.industry === "Others" ? formData.customIndustry : formData.industry,
+        userType: selectedType,
+      };
+      try { localStorage.setItem('userProfile', JSON.stringify(userProfile)); } catch {}
       navigate("/dashboard", {
         state: {
-          userProfile: {
-            name: formData.name,
-            email: formData.email,
-            industry: formData.industry,
-            userType: selectedType,
-          },
+          userProfile,
         },
       });
     }
@@ -214,20 +218,50 @@ export default function Signup() {
                 )}
               </div>
 
-              <div className="form-group">
+              <div className="form-group select-group">
                 <FaBriefcase className="icon" />
-                <input
-                  type="text"
+                <select
                   name="industry"
-                  placeholder="What industry do you work in?"
                   value={formData.industry}
                   onChange={handleInputChange}
-                  className={errors.industry ? "error" : ""}
-                />
+                  className={`brand-select ${errors.industry ? "error" : ""}`}
+                  aria-label="Industry"
+                >
+                  {/* Hidden empty option so no text is shown until user selects */}
+                  <option value="" disabled hidden></option>
+                  {/* No placeholder option in dropdown; using overlay placeholder below */}
+                  <option value="Technology">Technology</option>
+                  <option value="Retail">Retail</option>
+                  <option value="Real Estate">Real Estate</option>
+                  <option value="Manufacturing">Manufacturing</option>
+                  <option value="Healthcare">Healthcare</option>
+                  <option value="Hospitality">Hospitality</option>
+                  <option value="Others">Others - specify</option>
+                </select>
+                {!formData.industry && (
+                  <span className="select-placeholder">What industry do you work in? (Optional)</span>
+                )}
                 {errors.industry && (
                   <div className="error-message">{errors.industry}</div>
                 )}
               </div>
+
+              {formData.industry === "Others" && (
+                <div className="form-group">
+                  <FaBriefcase className="icon" />
+                  <input
+                    type="text"
+                    name="customIndustry"
+                    placeholder="Please specify your industry"
+                    value={formData.customIndustry}
+                    onChange={handleInputChange}
+                    className={errors.customIndustry ? "error" : ""}
+                  />
+                  {errors.customIndustry && (
+                    <div className="error-message">{errors.customIndustry}</div>
+                  )}
+                </div>
+              )}
 
               <button className="get-started-btn" onClick={handleGetStarted}>
                 Get Started
