@@ -16,6 +16,7 @@ import ProfileSettings from "./components/ProfileSettings";
 import UpgradePlan from "./components/UpgradePlan";
 import AccountSettings from "./components/AccountSettings";
 import Help from "./components/Help";
+import DraftingPage from "./components/DraftingPage";
 
 function HomePage() {
   return (
@@ -114,6 +115,7 @@ function App() {
         <Route path="/upgrade-plan" element={<div className="client-vault-page"><Navbar /><UpgradePlan /></div>} />
         <Route path="/account-settings" element={<div className="client-vault-page"><Navbar /><AccountSettings /></div>} />
         <Route path="/help" element={<div className="client-vault-page"><Navbar /><Help /></div>} />
+        <Route path="/drafting" element={<DraftingPage />} />
       </Routes>
     </Router>
   );

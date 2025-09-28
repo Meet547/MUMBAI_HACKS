@@ -239,17 +239,73 @@
 .brand-select {
   border-color: #e1e5e9;
   background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
 }
 
 .brand-select:hover {
   border-color: #bcd6ff;
-  box-shadow: 0 4px 14px rgba(0, 128, 255, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 128, 255, 0.15);
 }
 
 .brand-select:focus {
-  border-color: #0080ff;
-  box-shadow: 0 0 0 3px rgba(0, 128, 255, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 12px rgba(0, 128, 255, 0.15);
 }
+
+/* Enhanced dropdown menu options styling */
+.brand-select option {
+  padding: 14px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #374151;
+  background-color: #ffffff;
+  border: none;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+}
+
+.brand-select option:hover {
+  background-color: #f1f5f9;
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.brand-select option:checked,
+.brand-select option:selected {
+  background-color: #3b82f6;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.brand-select option:focus {
+  background-color: #dbeafe;
+  color: #1e40af;
+  outline: none;
+}
+
+/* Additional dropdown enhancements */
+.brand-select {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.brand-select:active {
+  transform: translateY(1px);
+}
+
+/* Better visual hierarchy for options */
+.brand-select option:first-child {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.brand-select option:last-child {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
 
 /* Placeholder overlay for select */
 .select-group {
@@ -526,23 +582,11 @@
     height: 350px;
   }
 
-  .decorative-quotes {
-    display: none; /* Hide decorative elements on mobile */
-  }
-
   .slogan-line {
     max-width: 80px;
   }
 
   .slogan-text {
     font-size: 14px;
-  }
-
-  .quote-left {
-    left: -40px;
-  }
-
-  .quote-right {
-    right: -40px;
   }
 }

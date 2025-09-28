@@ -6,19 +6,6 @@ import hrwomanImage from "../Images/HRwoman.png";
 import cacsImage from "../Images/cacs.png";
 import { FaUser, FaEnvelope, FaBriefcase } from "react-icons/fa";
 
-/* add this later-// In your main component or layout
-import Sidebar from "./components/Sidebar";
-
-function Layout() {
-  return (
-    <div className="app-layout">
-      <Sidebar userName="rj007" currentPage="notifications" />
-      <div className="main-content">
-        {/* Your main content goes here}
-      </div>
-      </div>
-    );
-  } */
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -44,8 +31,8 @@ export default function Signup() {
       image: hrwomanImage,
     },
     {
-      id: "Chartered Accountant",
-      label: "Chartered Accountant",
+      id: "Corporate",
+      label: "Corporate",
       image: cacsImage,
     },
   ];
@@ -105,13 +92,14 @@ export default function Signup() {
 
   const handleGetStarted = () => {
     if (validateForm()) {
-      console.log("Form submitted:", { selectedType, ...formData });
       // Navigate to dashboard with user profile data
       const userProfile = {
         name: formData.name,
         email: formData.email,
         industry: formData.industry === "Others" ? formData.customIndustry : formData.industry,
-        userType: selectedType,
+        userType: formData.industry === "Company Secretary" ? "Company Secretary" : 
+                  formData.industry === "Chartered Accountant" ? "Chartered Accountant" : 
+                  selectedType,
       };
       try { localStorage.setItem('userProfile', JSON.stringify(userProfile)); } catch {}
       navigate("/dashboard", {
@@ -229,17 +217,39 @@ export default function Signup() {
                 >
                   {/* Hidden empty option so no text is shown until user selects */}
                   <option value="" disabled hidden></option>
-                  {/* No placeholder option in dropdown; using overlay placeholder below */}
-                  <option value="Technology">Technology</option>
-                  <option value="Retail">Retail</option>
-                  <option value="Real Estate">Real Estate</option>
-                  <option value="Manufacturing">Manufacturing</option>
-                  <option value="Healthcare">Healthcare</option>
-                  <option value="Hospitality">Hospitality</option>
-                  <option value="Others">Others - specify</option>
+                  {/* Dynamic options based on selected profession */}
+                  {selectedType === "lawyer" && (
+                    <>
+                      <option value="Criminal">Criminal</option>
+                      <option value="Civil">Civil</option>
+                      <option value="Corporate">Corporate</option>
+                    </>
+                  )}
+                  {selectedType === "HR manager" && (
+                    <>
+                      <option value="Technology">Technology</option>
+                      <option value="Retail">Retail</option>
+                      <option value="Real Estate">Real Estate</option>
+                      <option value="Manufacturing">Manufacturing</option>
+                      <option value="Healthcare">Healthcare</option>
+                      <option value="Hospitality">Hospitality</option>
+                      <option value="Others">Others - specify</option>
+                    </>
+                  )}
+                  {(selectedType === "Corporate") && (
+                    <>
+                      <option value="Chartered Accountant">Chartered Accountant</option>
+                      <option value="Company Secretary">Company Secretary</option>
+                    </>
+                  )}
                 </select>
                 {!formData.industry && (
-                  <span className="select-placeholder">What industry do you work in? (Optional)</span>
+                  <span className="select-placeholder">
+                    {selectedType === "lawyer" ? "What type of law do you practice? (Optional)" :
+                     selectedType === "HR manager" ? "What industry do you work in? (Optional)" :
+                     selectedType === "Corporate" ? "Select your qualification (Optional)" :
+                     "What industry do you work in? (Optional)"}
+                  </span>
                 )}
                 {errors.industry && (
                   <div className="error-message">{errors.industry}</div>

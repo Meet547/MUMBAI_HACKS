@@ -77,7 +77,6 @@ export default function Sidebar({ userName = "rj007", currentPage = "" }) {
   const handleMenuClick = (item) => {
     if (item.action === "logout") {
       // Handle logout logic here
-      console.log("Logging out...");
       // navigate("/login");
     } else {
       navigate(item.path);

@@ -515,6 +515,40 @@
   transform: translateX(2px);
 }
 
+/* CTA Buttons Container */
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+.cta-btn.primary {
+  background: #60a5fa;
+  color: #ffffff;
+  flex: 1;
+}
+
+.cta-btn.primary:hover {
+  background: #3b82f6;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(96, 165, 250, 0.3);
+}
+
+.cta-btn.secondary {
+  background: #f8fafc;
+  color: #475569;
+  border: 2px solid #e2e8f0;
+  flex: 1;
+}
+
+.cta-btn.secondary:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
 /* Chart Animations */
 @keyframes chartLine {
   0%,

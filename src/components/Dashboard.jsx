@@ -170,7 +170,6 @@ export default function Dashboard() {
         navigate("/help");
         break;
       case "logout":
-        console.log("Logging out...");
         navigate("/");
         break;
       default:
@@ -346,12 +345,20 @@ export default function Dashboard() {
                       <li>Average generation time: 2.3 minutes per document</li>
                     </ul>
                   </div>
-                  <button
-                    className="cta-btn"
-                    onClick={() => handleNavigation("documents-overview")}
-                  >
-                    Open Documents Overview <FaArrowRight />
-                  </button>
+                  <div className="cta-buttons">
+                    <button
+                      className="cta-btn primary"
+                      onClick={() => handleNavigation("drafting")}
+                    >
+                      Draft New Document <FaArrowRight />
+                    </button>
+                    <button
+                      className="cta-btn secondary"
+                      onClick={() => handleNavigation("documents-overview")}
+                    >
+                      View All Documents <FaArrowRight />
+                    </button>
+                  </div>
                 </>
               )}
 
