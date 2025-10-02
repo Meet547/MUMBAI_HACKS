@@ -49,7 +49,7 @@ body {
 
 .main-content {
   flex: 1;
-  padding: 32px 16px; /* breathing room around cards */
+  padding: 0; /* sections handle their own padding */
   margin-top: 70px; /* space for navbar */
   background: #4a5fd4; /* Ensure main also has blue background */
   width: 100%;

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Scroll Effect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #333;
+        }
+
+        .documents-showcase {
+            overflow-x: hidden;
+        }
+
+        .section-wrapper {
+            position: relative;
+            height: 300vh;
+            border: 3px solid red;
+        }
+
+        .section-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 3rem 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .cards-container {
+            position: relative;
+            height: 50vh;
+            overflow: hidden;
+            border: 2px solid green;
+        }
+
+        .cards-track {
+            display: flex;
+            gap: 2rem;
+            position: absolute;
+            left: 0;
+            height: 100%;
+            padding: 0 10vw;
+            transition: transform 0.1s ease-out;
+            border: 2px solid blue;
+        }
+
+        .card {
+            flex-shrink: 0;
+            width: 280px;
+            height: 80%;
+            background: white;
+            color: black;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .debug-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Scroll down to test DocumentsShowcase</h1>
+    </div>
+
+    <div class="debug-info" id="debugInfo">
+        Waiting for scroll...
+    </div>
+
+    <div class="documents-showcase">
+        <div class="section-wrapper" data-section="test">
+            <div class="section-sticky">
+                <div class="section-header">
+                    <h2 class="section-title">Test Section</h2>
+                </div>
+                <div class="cards-container">
+                    <div class="cards-track">
+                        <div class="card">Card 1</div>
+                        <div class="card">Card 2</div>
+                        <div class="card">Card 3</div>
+                        <div class="card">Card 4</div>
+                        <div class="card">Card 5</div>
+                        <div class="card">Card 6</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="height: 100vh; background: #222; display: flex; align-items: center; justify-content: center;">
+        <h2>End of test</h2>
+    </div>
+
+    <script>
+        const sections = document.querySelectorAll('.section-wrapper');
+        const debugInfo = document.getElementById('debugInfo');
+
+        console.log('Test page: Found sections:', sections.length);
+
+        let ticking = false;
+        const handleScroll = () => {
+            if (!ticking) {
+                ticking = true;
+                requestAnimationFrame(() => {
+                    sections.forEach((section, index) => {
+                        const track = section.querySelector('.cards-track');
+                        if (!track) return;
+                        
+                        const rect = section.getBoundingClientRect();
+                        
+                        if (rect.top <= 0 && rect.bottom >= window.innerHeight) {
+                            const sectionHeight = section.offsetHeight;
+                            const windowHeight = window.innerHeight;
+                            const scrollDistance = sectionHeight - windowHeight;
+                            const progress = Math.max(0, Math.min(1, -rect.top / scrollDistance));
+                            
+                            const cardWidth = 280;
+                            const gap = 32;
+                            const totalWidth = (cardWidth + gap) * 6; // 6 cards
+                            const translateX = -(totalWidth * progress * 0.6);
+                            
+                            track.style.transform = `translateX(${translateX}px)`;
+                            
+                            debugInfo.innerHTML = `
+                                Section ${index}:<br>
+                                Progress: ${(progress * 100).toFixed(1)}%<br>
+                                TranslateX: ${translateX.toFixed(0)}px<br>
+                                Section Top: ${rect.top.toFixed(0)}px<br>
+                                Section Height: ${sectionHeight}px<br>
+                                Window Height: ${windowHeight}px
+                            `;
+                            
+                            console.log(`Section ${index}: progress=${progress.toFixed(2)}, translateX=${translateX.toFixed(0)}`);
+                        }
+                    });
+                    ticking = false;
+                });
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        handleScroll(); // Initial call
+    </script>
+</body>
+</html>
