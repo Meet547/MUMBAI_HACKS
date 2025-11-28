@@ -4,6 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:frontend": "PORT=3001 next dev",
+    "dev:backend": "cd backend && npm start",
+    "dev:both": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "build": "next build",
     "start": "next start"
   },

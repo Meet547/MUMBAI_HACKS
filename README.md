@@ -1,16 +1,41 @@
 # Draftzi Demo
 
-This is a minimal Next.js + TypeScript scaffold created to run `mumbai_hacs-2.tsx` locally as the homepage.
+This is a full-stack Next.js + TypeScript frontend with Node.js/Express + PostgreSQL backend.
 
-Quick start (macOS / zsh):
+## Quick start (macOS / zsh):
+
+### Option 1: Run both servers separately
 
 ```bash
 cd ~/Desktop/draftzi-demo
-npm install
-npm run dev
+
+# Terminal 1: Start backend (Express + PostgreSQL)
+cd backend && npm start
+
+# Terminal 2: Start frontend (Next.js)
+PORT=3001 npm run dev
 ```
 
-Open http://localhost:3000 in your browser.
+### Option 2: Install concurrently and run both together
+
+```bash
+cd ~/Desktop/draftzi-demo
+npm install concurrently --save-dev
+npm run dev:both
+```
+
+## Access the application:
+
+- **Frontend**: http://localhost:3001 (Next.js with React)
+- **Backend API**: http://localhost:3000 (Express with PostgreSQL)
+- **Health Check**: http://localhost:3000/api/health
+
+## Authentication:
+
+- Backend uses JWT tokens and bcrypt for password hashing
+- PostgreSQL database (Neon) for user storage
+- Frontend stores JWT in localStorage and sends with requests
+- Real production-ready authentication system
 
 Notes:
 - Tailwind is included via `styles/globals.css` and `tailwind.config.js`.

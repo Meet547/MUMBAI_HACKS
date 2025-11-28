@@ -8,23 +8,33 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Call demo auth API
-    fetch('/api/auth/login', {
+    console.log('Attempting login with:', { email, password: '***' });
+    
+    fetch('http://localhost:3000/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     })
-      .then(r => r.json())
+      .then(async (r) => {
+        console.log('Response status:', r.status);
+        const data = await r.json();
+        console.log('Response data:', data);
+        return data;
+      })
       .then((data) => {
-        if (data.ok && data.token) {
-          localStorage.setItem('demo_token', data.token)
-          localStorage.setItem('demo_email', email)
+        if (data.token) {
+          localStorage.setItem('auth_token', data.token)
+          localStorage.setItem('user_email', email)
           router.push('/')
         } else {
-          alert(data.message || 'Login failed')
+          console.error('Login failed:', data);
+          alert(data.error || 'Login failed')
         }
       })
-      .catch(() => alert('Login failed'))
+      .catch((error) => {
+        console.error('Fetch error:', error);
+        alert('Network error - is the backend running on port 3000?')
+      })
   };
 
   return (

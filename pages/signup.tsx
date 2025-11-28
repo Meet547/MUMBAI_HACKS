@@ -5,24 +5,37 @@ export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [company, setCompany] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    fetch('/api/auth/signup', {
+    console.log('Attempting signup with:', { email, name, company, password: '***' });
+    
+    fetch('http://localhost:3000/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password, name, company })
     })
-      .then(r => r.json())
+      .then(async (r) => {
+        console.log('Response status:', r.status);
+        const data = await r.json();
+        console.log('Response data:', data);
+        return data;
+      })
       .then((data) => {
-        if (data.ok) {
+        if (data.success) {
           alert('Account created — you can now log in')
           router.push('/login')
         } else {
-          alert(data.message || 'Signup failed')
+          console.error('Signup failed:', data);
+          alert(data.error || 'Signup failed')
         }
       })
-      .catch(() => alert('Signup failed'))
+      .catch((error) => {
+        console.error('Fetch error:', error);
+        alert('Network error - is the backend running on port 3000?')
+      })
   };
 
   return (
@@ -31,8 +44,16 @@ export default function SignupPage() {
         <h2 className="text-2xl font-bold mb-4">Create account</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
+            <label className="block text-sm font-medium mb-1">Full Name</label>
+            <input value={name} onChange={e => setName(e.target.value)} type="text" className="w-full border px-3 py-2 rounded" required />
+          </div>
+          <div>
             <label className="block text-sm font-medium mb-1">Email</label>
             <input value={email} onChange={e => setEmail(e.target.value)} type="email" className="w-full border px-3 py-2 rounded" required />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Company (Optional)</label>
+            <input value={company} onChange={e => setCompany(e.target.value)} type="text" className="w-full border px-3 py-2 rounded" />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Password</label>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { ChevronDown, ArrowRight, CheckCircle, Menu, X } from 'lucide-react';
+import { ChevronDown, ArrowRight, CheckCircle, Menu, X, MessageCircle } from 'lucide-react';
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -9,6 +9,7 @@ export default function Home() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [email, setEmail] = useState('');
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,8 +20,8 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('demo_token') : null;
-    const storedEmail = typeof window !== 'undefined' ? localStorage.getItem('demo_email') : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    const storedEmail = typeof window !== 'undefined' ? localStorage.getItem('user_email') : null;
     if (token && storedEmail) {
       setIsLoggedIn(true);
       setEmail(storedEmail);
@@ -49,6 +50,14 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
+  const handleStartTrial = () => {
+    if (isLoggedIn) {
+      router.push('/chat');
+    } else {
+      router.push('/signup');
+    }
+  };
+
   return (
     <div className="bg-white">
       {/* Navigation */}
@@ -71,7 +80,7 @@ export default function Home() {
                   const el = document.getElementById('products');
                   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
-                className={`flex items-center transition-colors group ${currentSection === 'products' ? 'text-blue-600 font-semibold' : 'text-gray-700 hover:text-blue-600'}`}
+                className={`text-sm font-medium flex items-center transition-colors group ${currentSection === 'products' ? 'text-blue-600 font-semibold' : 'text-gray-700 hover:text-blue-600'}`}
               >
                 Products 
                 <ChevronDown className="ml-1 w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
@@ -81,7 +90,7 @@ export default function Home() {
                     const el = document.getElementById('products');
                     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }}
-                  className={`flex items-center transition-colors group ${currentSection === 'products' ? 'text-blue-600 font-semibold' : 'text-gray-700 hover:text-blue-600'}`}
+                  className={`text-sm font-medium flex items-center transition-colors group ${currentSection === 'products' ? 'text-blue-600 font-semibold' : 'text-gray-700 hover:text-blue-600'}`}
                 >
                   Solutions 
                   <ChevronDown className="ml-1 w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
@@ -91,7 +100,7 @@ export default function Home() {
                   const el = document.getElementById('customers');
                   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
-                className={`text-sm transition-colors ${currentSection === 'customers' ? 'text-blue-600 font-semibold' : 'text-gray-700 hover:text-blue-600'}`}
+                className={`text-sm font-medium transition-colors ${currentSection === 'customers' ? 'text-blue-600 font-semibold' : 'text-gray-700 hover:text-blue-600'}`}
               >
                 Customers
               </button>
@@ -101,7 +110,7 @@ export default function Home() {
                   const el = document.getElementById('pricing');
                   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }}
-                className={`text-sm transition-colors ${currentSection === 'pricing' ? 'text-blue-600 font-semibold' : 'text-gray-700 hover:text-blue-600'}`}
+                className={`text-sm font-medium transition-colors ${currentSection === 'pricing' ? 'text-blue-600 font-semibold' : 'text-gray-700 hover:text-blue-600'}`}
               >
                 Pricing
               </button>
@@ -114,8 +123,8 @@ export default function Home() {
                   <span className="text-sm text-gray-700">{email}</span>
                   <button
                     onClick={() => {
-                      localStorage.removeItem('demo_token');
-                      localStorage.removeItem('demo_email');
+                      localStorage.removeItem('auth_token');
+                      localStorage.removeItem('user_email');
                       setIsLoggedIn(false);
                       setEmail('');
                       // reload to reset state across components
@@ -129,10 +138,10 @@ export default function Home() {
               ) : (
                 <>
                   <button
-                    onClick={() => router.push('/signup')}
+                    onClick={handleStartTrial}
                     className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 flex items-center group shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                   >
-                    Start free trial 
+                    {isLoggedIn ? 'Start AI Chat' : 'Start free trial'}
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </button>
                   <button
@@ -189,10 +198,10 @@ export default function Home() {
             </a>
             <div className="pt-4 space-y-2">
               <button
-                onClick={() => { router.push('/signup'); setIsMenuOpen(false); }}
+                onClick={() => { handleStartTrial(); setIsMenuOpen(false); }}
                 className="w-full px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
               >
-                Start free trial <ArrowRight className="ml-2 w-4 h-4" />
+                {isLoggedIn ? 'Start AI Chat' : 'Start free trial'} <ArrowRight className="ml-2 w-4 h-4" />
               </button>
               <button
                 onClick={() => { router.push('/login'); setIsMenuOpen(false); }}
@@ -228,6 +237,17 @@ export default function Home() {
             Resolve tasks faster, increase accuracy, and scale your productivity —<br className="hidden sm:block" />
             with the only smart automation system built for legal & business professionals.
           </p>
+          
+          {/* CTA Button */}
+          <div className="mb-8 sm:mb-12 animate-fade-in-delay-2">
+            <button
+              onClick={handleStartTrial}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition duration-300 inline-flex items-center"
+            >
+              {isLoggedIn ? 'Try AI Assistant Now' : 'Get Started - Free Trial'}
+              <ArrowRight className="w-6 h-6 ml-2" />
+            </button>
+          </div>
           
           {/* Product Screenshot Placeholder */}
           <div className="bg-white rounded-lg shadow-2xl p-2 sm:p-4 max-w-5xl mx-auto transform hover:scale-105 transition-transform duration-500 animate-fade-in-delay-2">
