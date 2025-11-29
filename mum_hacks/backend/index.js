@@ -234,7 +234,7 @@ app.post('/api/chat/sessions', authenticateToken, async (req, res) => {
     const { title } = req.body;
     const result = await pool.query(
       'INSERT INTO chat_sessions (user_id, title) VALUES ($1, $2) RETURNING *',
-      [req.user.id, title || 'New Chat']
+      [req.user.userId, title || 'New Chat']
     );
     res.json({ success: true, session: result.rows[0] });
   } catch (error) {
@@ -246,7 +246,7 @@ app.get('/api/chat/sessions', authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(
       'SELECT * FROM chat_sessions WHERE user_id = $1 ORDER BY updated_at DESC',
-      [req.user.id]
+      [req.user.userId]
     );
     res.json({ success: true, sessions: result.rows });
   } catch (error) {
@@ -261,7 +261,7 @@ app.post('/api/chat/messages', authenticateToken, async (req, res) => {
     // Verify session belongs to user
     const sessionCheck = await pool.query(
       'SELECT id FROM chat_sessions WHERE id = $1 AND user_id = $2',
-      [session_id, req.user.id]
+      [session_id, req.user.userId]
     );
     
     if (sessionCheck.rows.length === 0) {
@@ -303,7 +303,7 @@ app.get('/api/chat/messages/:sessionId', authenticateToken, async (req, res) => 
     // Verify session belongs to user
     const sessionCheck = await pool.query(
       'SELECT id FROM chat_sessions WHERE id = $1 AND user_id = $2',
-      [sessionId, req.user.id]
+      [sessionId, req.user.userId]
     );
     
     if (sessionCheck.rows.length === 0) {
@@ -325,7 +325,7 @@ app.get('/api/chat/messages/:sessionId', authenticateToken, async (req, res) => 
 app.delete('/api/chat/sessions/:sessionId', authenticateToken, async (req, res) => {
   try {
     const { sessionId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     // Verify session belongs to user
     const sessionCheck = await pool.query(
@@ -364,81 +364,60 @@ const client = new PredictionServiceClient({
 
 // Real AI response generator using Vertex AI
 async function generateAIResponse(userMessage) {
-  const lowerMessage = userMessage.toLowerCase();
-  
-  // Legal document creation patterns
-  if (lowerMessage.includes('create') || lowerMessage.includes('draft') || lowerMessage.includes('generate')) {
-    if (lowerMessage.includes('legal') || lowerMessage.includes('document') || lowerMessage.includes('contract')) {
-      return `I can help you create legal documents! Here's what I can assist with:
+  try {
+    const project = 'powerful-outlet-477116-p1';
+    const location = 'us-central1';
+    const model = 'text-bison@001';
+    
+    const endpoint = `projects/${project}/locations/${location}/publishers/google/models/${model}`;
+    
+    // Create a specialized prompt for legal/compliance context
+    const prompt = `You are a helpful AI assistant specialized in legal documents, compliance, and business automation. 
+User question: "${userMessage}"
 
-📄 **Available Document Types:**
-- Contracts & Agreements
-- Non-Disclosure Agreements (NDAs)
-- Terms of Service
-- Privacy Policies
-- Employment Agreements
-- Partnership Agreements
+Please provide a helpful, accurate response focused on legal document assistance, compliance guidance, or business process automation. Keep responses professional and informative.
 
-To get started, please tell me:
-1. What type of document do you need?
-2. What are the key details (parties involved, purpose, etc.)?
-3. Any specific clauses or terms you want to include?`;
+Response:`;
+
+    const instanceValue = {
+      prompt: prompt,
+      max_output_tokens: 1024,
+      temperature: 0.2,
+      top_p: 0.8,
+      top_k: 40
+    };
+    
+    const instance = {
+      value: instanceValue
+    };
+    
+    const request = {
+      endpoint,
+      instances: [instance],
+    };
+
+    const [response] = await client.predict(request);
+    
+    if (response.predictions && response.predictions.length > 0) {
+      const prediction = response.predictions[0];
+      return prediction.value.content || prediction.structValue?.fields?.content?.stringValue || "I'm here to help with your legal and compliance needs. Could you please rephrase your question?";
+    } else {
+      return "I'm processing your request. How can I assist you with legal documents or compliance today?";
     }
+  } catch (error) {
+    console.error('Vertex AI Error:', error);
+    
+    // Fallback responses for legal/compliance context
+    const fallbackResponses = [
+      "I understand you're working on compliance documentation. How can I help you draft or review your legal documents?",
+      "Based on your query, I can assist with contract analysis, regulatory compliance checks, and document automation.",
+      "Let me help you with your legal and compliance needs. What specific document or regulation are you working with?",
+      "I'm here to streamline your legal workflow. Would you like me to help with document generation, deadline tracking, or compliance analysis?",
+      "That's a great question about compliance. I can help you navigate regulatory requirements and automate your documentation process."
+    ];
+    
+    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
   }
-  
-  // Compliance queries
-  if (lowerMessage.includes('compliance') || lowerMessage.includes('regulation') || lowerMessage.includes('regulatory')) {
-    return `I can help with compliance matters! Here's how:
-
-✅ **Compliance Services:**
-- Regulatory requirement analysis
-- Compliance checklist generation
-- Document review for compliance
-- Deadline tracking
-- Audit preparation
-
-What specific compliance area are you working on? (GDPR, HIPAA, SOX, etc.)`;
-  }
-  
-  // Workflow automation
-  if (lowerMessage.includes('automate') || lowerMessage.includes('workflow') || lowerMessage.includes('process')) {
-    return `Let me help automate your workflows!
-
-⚙️ **Automation Capabilities:**
-- Document generation workflows
-- Approval process automation
-- Deadline reminders
-- Template management
-- Batch document processing
-
-What process would you like to automate?`;
-  }
-  
-  // Contract analysis
-  if (lowerMessage.includes('analyze') || lowerMessage.includes('review') || lowerMessage.includes('check')) {
-    return `I can analyze and review documents for you!
-
-🔍 **Analysis Services:**
-- Contract clause review
-- Risk assessment
-- Compliance verification
-- Key term extraction
-- Redline suggestions
-
-Please upload or paste the document you'd like me to review.`;
-  }
-  
-  // Default intelligent response
-  return `I'm your Draftzi AI assistant, specialized in legal documents and compliance automation.
-
-💡 **I can help you with:**
-- Creating legal documents (contracts, NDAs, policies)
-- Compliance guidance and regulatory requirements
-- Document review and analysis
-- Workflow automation
-- Template management
-
-What would you like to work on today?`;
 }
 
 app.listen(port, () => {
