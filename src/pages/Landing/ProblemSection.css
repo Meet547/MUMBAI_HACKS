@@ -1,0 +1,141 @@
+/* Clean Problem Section */
+.problem-section {
+  width: 100vw;
+  background: #fff;
+  padding: 80px 24px;
+  color: #333;
+}
+
+.problem-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.problem-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.problem-title {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  color: #2d3748;
+}
+
+.problem-subtitle {
+  font-size: 18px;
+  color: #718096;
+  margin: 0;
+}
+
+/* Clean Cards */
+.problem-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+  margin-bottom: 48px;
+}
+
+.problem-card {
+  background: #f8f9fa;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 32px 24px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.problem-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: #cbd5e1;
+}
+
+.problem-icon {
+  width: 56px;
+  height: 56px;
+  background: #4a5fd4;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  color: #fff;
+}
+
+.problem-card-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: #2d3748;
+}
+
+.problem-card-text {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #4a5568;
+  margin: 0;
+}
+
+/* Result Box */
+.problem-result {
+  text-align: center;
+  background: #fed7d7;
+  border: 1px solid #feb2b2;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.result-text {
+  font-size: 18px;
+  color: #c53030;
+  margin: 0;
+}
+
+.result-text strong {
+  font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .problem-section {
+    padding: 60px 20px;
+  }
+  
+  .problem-title {
+    font-size: 28px;
+  }
+  
+  .problem-subtitle {
+    font-size: 16px;
+  }
+  
+  .problem-cards {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .problem-card {
+    padding: 24px 20px;
+  }
+  
+  .problem-icon {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .problem-card-title {
+    font-size: 18px;
+  }
+  
+  .problem-card-text {
+    font-size: 15px;
+  }
+  
+  .result-text {
+    font-size: 16px;
+  }
+}
