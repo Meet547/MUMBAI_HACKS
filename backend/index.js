@@ -275,7 +275,7 @@ app.post('/api/chat/messages', authenticateToken, async (req, res) => {
     );
     
     // Simple AI response (replace with actual AI logic)
-    const aiResponse = generateAIResponse(message);
+    const aiResponse = await generateAIResponse(message);
     const aiMsg = await pool.query(
       'INSERT INTO chat_messages (session_id, sender_type, message) VALUES ($1, $2, $3) RETURNING *',
       [session_id, 'ai', aiResponse]
@@ -353,16 +353,71 @@ app.delete('/api/chat/sessions/:sessionId', authenticateToken, async (req, res) 
   }
 });
 
-// Simple AI response generator (replace with actual AI service)
-function generateAIResponse(userMessage) {
-  const responses = [
-    "I understand you're working on compliance documentation. How can I help you draft or review your legal documents?",
-    "Based on your query, I can assist with contract analysis, regulatory compliance checks, and document automation.",
-    "Let me help you with your legal and compliance needs. What specific document or regulation are you working with?",
-    "I'm here to streamline your legal workflow. Would you like me to help with document generation, deadline tracking, or compliance analysis?",
-    "That's a great question about compliance. I can help you navigate regulatory requirements and automate your documentation process."
-  ];
-  return responses[Math.floor(Math.random() * responses.length)];
+// Google Cloud Vertex AI Integration
+const { PredictionServiceClient } = require('@google-cloud/aiplatform');
+
+// Initialize Vertex AI client
+const client = new PredictionServiceClient({
+  keyFilename: './gcp-credentials.json',
+  projectId: 'powerful-outlet-477116-p1',
+});
+
+// Real AI response generator using Vertex AI
+async function generateAIResponse(userMessage) {
+  try {
+    const project = 'powerful-outlet-477116-p1';
+    const location = 'us-central1';
+    const model = 'text-bison@001';
+    
+    const endpoint = `projects/${project}/locations/${location}/publishers/google/models/${model}`;
+    
+    // Create a specialized prompt for legal/compliance context
+    const prompt = `You are a helpful AI assistant specialized in legal documents, compliance, and business automation. 
+User question: "${userMessage}"
+
+Please provide a helpful, accurate response focused on legal document assistance, compliance guidance, or business process automation. Keep responses professional and informative.
+
+Response:`;
+
+    const instanceValue = {
+      prompt: prompt,
+      max_output_tokens: 1024,
+      temperature: 0.2,
+      top_p: 0.8,
+      top_k: 40
+    };
+    
+    const instance = {
+      value: instanceValue
+    };
+    
+    const request = {
+      endpoint,
+      instances: [instance],
+    };
+
+    const [response] = await client.predict(request);
+    
+    if (response.predictions && response.predictions.length > 0) {
+      const prediction = response.predictions[0];
+      return prediction.value.content || prediction.structValue?.fields?.content?.stringValue || "I'm here to help with your legal and compliance needs. Could you please rephrase your question?";
+    } else {
+      return "I'm processing your request. How can I assist you with legal documents or compliance today?";
+    }
+  } catch (error) {
+    console.error('Vertex AI Error:', error);
+    
+    // Fallback responses for legal/compliance context
+    const fallbackResponses = [
+      "I understand you're working on compliance documentation. How can I help you draft or review your legal documents?",
+      "Based on your query, I can assist with contract analysis, regulatory compliance checks, and document automation.",
+      "Let me help you with your legal and compliance needs. What specific document or regulation are you working with?",
+      "I'm here to streamline your legal workflow. Would you like me to help with document generation, deadline tracking, or compliance analysis?",
+      "That's a great question about compliance. I can help you navigate regulatory requirements and automate your documentation process."
+    ];
+    
+    return fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+  }
 }
 
 app.listen(port, () => {

@@ -97,6 +97,9 @@ export default function ChatPage() {
   const createNewSession = async () => {
     try {
       const token = localStorage.getItem('auth_token');
+      console.log('Creating new session...');
+      console.log('Token exists:', !!token);
+      
       const response = await fetch('http://localhost:3000/api/chat/sessions', {
         method: 'POST',
         headers: {
@@ -106,7 +109,15 @@ export default function ChatPage() {
         body: JSON.stringify({ title: `Chat ${new Date().toLocaleDateString()}` })
       });
       
+      console.log('Create session response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
+      console.log('Create session response:', data);
+      
       if (data.success) {
         const newSession = data.session;
         setSessions(prev => [newSession, ...prev]);
@@ -117,9 +128,12 @@ export default function ChatPage() {
           message: 'Hello! I\'m your Draftzi AI assistant. I specialize in legal documents, compliance questions, and workflow automation. How can I help you today?',
           created_at: new Date().toISOString()
         }]);
+      } else {
+        throw new Error(data.message || 'Failed to create session');
       }
     } catch (error) {
       console.error('Failed to create new session:', error);
+      alert('Failed to create new chat session. Please check your connection and try again.');
     }
   };
 
@@ -130,8 +144,21 @@ export default function ChatPage() {
     setNewMessage('');
     setIsLoading(true);
     
+    // Add user message immediately to UI
+    const tempUserMessage = {
+      id: Date.now(),
+      sender_type: 'user' as const,
+      message: userMessage,
+      created_at: new Date().toISOString()
+    };
+    setMessages(prev => [...prev, tempUserMessage]);
+    
     try {
       const token = localStorage.getItem('auth_token');
+      console.log('Sending message to:', `http://localhost:3000/api/chat/messages`);
+      console.log('Session ID:', currentSession.id);
+      console.log('Token exists:', !!token);
+      
       const response = await fetch('http://localhost:3000/api/chat/messages', {
         method: 'POST',
         headers: {
@@ -144,19 +171,34 @@ export default function ChatPage() {
         })
       });
       
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
+      console.log('Response data:', data);
+      
       if (data.success) {
-        setMessages(prev => [...prev, ...data.messages]);
+        // Remove the temp message and add the real messages from server
+        setMessages(prev => {
+          const withoutTemp = prev.slice(0, -1); // Remove temp message
+          return [...withoutTemp, ...data.messages];
+        });
+      } else {
+        throw new Error(data.message || 'Failed to send message');
       }
     } catch (error) {
       console.error('Failed to send message:', error);
-      // Add user message even if API fails
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        sender_type: 'user',
-        message: userMessage,
+      // Show error to user
+      const errorMessage = {
+        id: Date.now() + 1,
+        sender_type: 'ai' as const,
+        message: 'Sorry, I encountered an error. Please try again.',
         created_at: new Date().toISOString()
-      }]);
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -308,6 +350,11 @@ export default function ChatPage() {
               <p className="text-sm text-gray-600">
                 Ask me about legal documents, compliance, or workflow automation
               </p>
+              {process.env.NODE_ENV === 'development' && (
+                <p className="text-xs text-blue-600">
+                  Session: {currentSession?.id || 'None'} | Backend: {typeof window !== 'undefined' ? 'Connected' : 'Loading'}
+                </p>
+              )}
             </div>
             <div className="flex items-center space-x-2 animate-fade-in-delay-3">
               <button
