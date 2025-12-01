@@ -1,3 +1,4 @@
+import { API_URL } from './api-config';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { Send, Bot, User, MessageCircle, ArrowLeft, Settings, Trash2, RotateCcw } from 'lucide-react';
@@ -51,7 +52,7 @@ export default function ChatPage() {
   const loadChatSessions = async () => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch('http://localhost:3000/api/chat/sessions', {
+      const response = await fetch(`${API_URL}/api/chat/sessions`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -79,7 +80,7 @@ export default function ChatPage() {
   const loadSessionMessages = async (sessionId: number) => {
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:3000/api/chat/sessions/${sessionId}/messages`, {
+      const response = await fetch(`${API_URL}/api/chat/sessions/${sessionId}/messages`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -100,7 +101,7 @@ export default function ChatPage() {
       console.log('Creating new session...');
       console.log('Token exists:', !!token);
       
-      const response = await fetch('http://localhost:3000/api/chat/sessions', {
+      const response = await fetch(`${API_URL}/api/chat/sessions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -155,7 +156,7 @@ export default function ChatPage() {
     
     try {
       const token = localStorage.getItem('auth_token');
-      console.log('Sending message to:', `http://localhost:3000/api/chat/messages`);
+      console.log('Sending message to:', `${API_URL}/api/chat/messages`);
       console.log('Session ID:', currentSession.id);
       console.log('Token exists:', !!token);
       
@@ -216,7 +217,7 @@ export default function ChatPage() {
     
     try {
       const token = localStorage.getItem('auth_token');
-      await fetch(`http://localhost:3000/api/chat/sessions/${sessionId}`, {
+      await fetch(`${API_URL}/api/chat/sessions/${sessionId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

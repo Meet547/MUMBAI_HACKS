@@ -1,3 +1,4 @@
+import { API_URL } from './api-config';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 
@@ -10,7 +11,7 @@ export default function LoginPage() {
     e.preventDefault();
     console.log('Attempting login with:', { email, password: '***' });
     
-    fetch('http://localhost:3000/api/auth/login', {
+    fetch('${API_URL}/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })

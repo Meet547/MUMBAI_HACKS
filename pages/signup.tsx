@@ -1,3 +1,4 @@
+import { API_URL } from './api-config';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 
@@ -12,7 +13,7 @@ export default function SignupPage() {
     e.preventDefault();
     console.log('Attempting signup with:', { email, name, company, password: '***' });
     
-    fetch('http://localhost:3000/api/auth/register', {
+    fetch('${API_URL}/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, name, company })
