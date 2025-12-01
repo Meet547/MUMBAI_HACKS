@@ -1,4 +1,4 @@
-import { API_URL } from './api-config';
+import { API_URL } from '../lib/api-config';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 

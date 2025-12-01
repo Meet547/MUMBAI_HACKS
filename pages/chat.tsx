@@ -1,4 +1,4 @@
-import { API_URL } from './api-config';
+import { API_URL } from '../lib/api-config';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { Send, Bot, User, MessageCircle, ArrowLeft, Settings, Trash2, RotateCcw } from 'lucide-react';
