@@ -11,7 +11,7 @@ export default function LoginPage() {
     e.preventDefault();
     console.log('Attempting login with:', { email, password: '***' });
     
-    fetch('${API_URL}/api/auth/login', {
+    fetch(`${API_URL}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
