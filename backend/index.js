@@ -12,9 +12,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 app.use(cors());
 app.use(express.json());
 
-// Initialize database on startup
-initDB();
-
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -134,6 +131,58 @@ app.get('/api/clients', authenticateToken, async (req, res) => {
   }
 });
 
+app.get('/api/clients/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      'SELECT * FROM clients WHERE id = $1 AND created_by = $2',
+      [id, req.user.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+    res.json({ success: true, client: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/clients/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, phone, company } = req.body;
+    const result = await pool.query(
+      `UPDATE clients 
+       SET name = $1, email = $2, phone = $3, company = $4, updated_at = CURRENT_TIMESTAMP 
+       WHERE id = $5 AND created_by = $6 
+       RETURNING *`,
+      [name, email, phone, company, id, req.user.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+    res.json({ success: true, client: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/clients/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      'DELETE FROM clients WHERE id = $1 AND created_by = $2 RETURNING *',
+      [id, req.user.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+    res.json({ success: true, message: 'Client deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ===== DOCUMENT ROUTES WITH AI =====
 app.post('/api/documents', authenticateToken, async (req, res) => {
   try {
@@ -197,6 +246,59 @@ app.get('/api/deadlines/upcoming', authenticateToken, async (req, res) => {
       [req.user.id]
     );
     res.json({ success: true, deadlines: result.rows });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/deadlines', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT cd.*, c.name as client_name 
+       FROM compliance_deadlines cd
+       JOIN clients c ON cd.client_id = c.id
+       WHERE cd.assigned_to = $1
+       ORDER BY cd.deadline_date ASC`,
+      [req.user.id]
+    );
+    res.json({ success: true, deadlines: result.rows });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/deadlines/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { client_id, title, description, deadline_date, priority, status } = req.body;
+    const result = await pool.query(
+      `UPDATE compliance_deadlines 
+       SET client_id = $1, title = $2, description = $3, deadline_date = $4, 
+           priority = $5, status = $6, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $7 AND assigned_to = $8 
+       RETURNING *`,
+      [client_id, title, description, deadline_date, priority, status, id, req.user.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Deadline not found' });
+    }
+    res.json({ success: true, deadline: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/deadlines/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      'DELETE FROM compliance_deadlines WHERE id = $1 AND assigned_to = $2 RETURNING *',
+      [id, req.user.id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Deadline not found' });
+    }
+    res.json({ success: true, message: 'Deadline deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -441,8 +543,19 @@ Please upload or paste the document you'd like me to review.`;
 What would you like to work on today?`;
 }
 
-app.listen(port, () => {
-  console.log(`🚀 Compliance AI Backend running on port ${port}`);
-  console.log(`📊 Database: Neon PostgreSQL`);
-  console.log(`🔗 Health check: http://localhost:${port}/api/health`);
-});
+// Start server
+async function startServer() {
+  try {
+    await initDB();
+    app.listen(port, () => {
+      console.log(`🚀 Compliance AI Backend running on port ${port}`);
+      console.log(`📊 Database: Neon PostgreSQL`);
+      console.log(`🔗 Health check: http://localhost:${port}/api/health`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
